@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Setup\GameStarted;
 use App\Game\Board;
+use App\States\GameState;
 
 class GameController extends Controller
 {
@@ -10,7 +12,16 @@ class GameController extends Controller
     {
         return view('game.index');
     }
+
+    public function show(Request $request, int $game_id)
+    {
+        if (! $request->session()->has('user')) {
+            return redirect('/login');
+        }
+
+        return view('game.show', [
             'board' => new Board,
+            'game' => GameState::load($game_id),
         ]);
     }
 
