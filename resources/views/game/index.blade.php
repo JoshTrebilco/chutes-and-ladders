@@ -1,5 +1,41 @@
 <x-layout>
     <h1 class="text-4xl font-bold text-gray-800 dark:text-white">Chutes and Ladders</h1>
+    <div x-data="{ game_id: '' }" class="mt-6 bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">
+                Join an existing game
+            </h3>
+            <form
+                class="mt-5 sm:flex sm:items-center"
+                @submit.prevent="if (game_id.trim() !== '') { window.location.href = `./games/${game_id}` }"
+            >
+                <div class="w-full sm:max-w-xs">
+                    <label
+                        for="game_id"
+                        class="sr-only"
+                    >
+                        Game ID
+                    </label>
+                    <input
+                        type="number"
+                        id="game_id"
+                        x-model="game_id"
+                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        placeholder="eg. 123000456001"
+                    />
+                </div>
+                <button
+                    type="submit"
+                    class="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white text-nowrap shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+                    :disabled="game_id.trim() === ''"
+                    :class="{ 'opacity-50': game_id.trim() === '' }"
+                >
+                    Join game
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div class="bg-white shadow mt-6 sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-base font-semibold leading-6 text-gray-900">

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\Setup\GameStarted;
 use App\Game\Board;
 use App\States\GameState;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class GameController extends Controller
 {
@@ -22,6 +24,7 @@ class GameController extends Controller
         return view('game.show', [
             'board' => new Board,
             'game' => GameState::load($game_id),
+            'player_id' => $request->session()->get('user.current_player_id'),
         ]);
     }
 
