@@ -4,6 +4,7 @@ namespace App\Events\Setup;
 
 use App\States\GameState;
 use App\States\PlayerState;
+use Illuminate\Support\Facades\Session;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
 use Thunk\Verbs\Event;
 
@@ -35,5 +36,6 @@ class PlayerJoinedGame extends Event
     {
         $player->square = 1;
         $player->setup = true;
+        $player->name = Session::get('user.name');
     }
 }

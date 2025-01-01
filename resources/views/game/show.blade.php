@@ -113,7 +113,7 @@
                 <dd class="mt-1 tracking-tight text-gray-900">
                     <ul class="">
                         @foreach ($game->players() as $player)
-                            <li class="text-sm text-nowrap">{{ $player->id }} {{ $player->id == $player_id ? '(you)' : '' }}</li>
+                            <li class="text-sm text-nowrap">{{ $player->name }} {{ $player->id == $player_id ? '(you)' : '' }}</li>
                         @endforeach
                     </ul>
                 </dd>
