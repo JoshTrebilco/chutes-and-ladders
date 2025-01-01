@@ -27,6 +27,31 @@
                 </div>
 
                 <svg class="absolute inset-0 pointer-events-none" viewBox="0 0 600 600">
+                    <!-- Draw Chutes first so they appear behind ladders -->
+                    @foreach ($chutes as $chute)
+                        @php
+                            $geometry = app(App\Http\Controllers\GameController::class)
+                                ->calculateChuteGeometry($chute);
+                        @endphp
+
+                        <g class="stroke-red-500 dark:stroke-red-400" fill="none">
+                            <!-- Curved chute path -->
+                            <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
+                                   Q{{ $geometry['controlPoints']['x'] }} {{ $geometry['controlPoints']['y'] }}
+                                   {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
+                                  stroke-width="{{ $geometry['width'] }}"
+                                  class="opacity-20 dark:opacity-10" />
+
+                            <!-- Chute edges -->
+                            <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
+                                   Q{{ $geometry['controlPoints']['x'] }} {{ $geometry['controlPoints']['y'] }}
+                                   {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
+                                  stroke-width="2"
+                                  class="opacity-100" />
+                        </g>
+                    @endforeach
+
+                    <!-- Draw Ladders -->
                     @foreach ($ladders as $ladder)
                         @php
                             $geometry = app(App\Http\Controllers\GameController::class)

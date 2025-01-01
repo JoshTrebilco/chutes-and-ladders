@@ -17,6 +17,7 @@ class GameController extends Controller
         return view('welcome', [
             'numbers' => $this->generateBoardNumbers(),
             'ladders' => $this->getLadders(),
+            'chutes' => $this->getChutes(),
             'squareSize' => $this->calculateSquareSize(),
         ]);
     }
@@ -40,9 +41,30 @@ class GameController extends Controller
     {
         return [
             ['start' => 1, 'end' => 38],
+            ['start' => 4, 'end' => 14],
+            ['start' => 9, 'end' => 31],
             ['start' => 21, 'end' => 42],
+            ['start' => 28, 'end' => 84],
+            ['start' => 36, 'end' => 44],
             ['start' => 51, 'end' => 67],
+            ['start' => 71, 'end' => 91],
             ['start' => 80, 'end' => 100],
+        ];
+    }
+
+    private function getChutes(): array
+    {
+        return [
+            ['start' => 98, 'end' => 78],
+            ['start' => 95, 'end' => 75],
+            ['start' => 93, 'end' => 73],
+            ['start' => 87, 'end' => 24],
+            ['start' => 64, 'end' => 60],
+            ['start' => 62, 'end' => 19],
+            ['start' => 56, 'end' => 53],
+            ['start' => 49, 'end' => 11],
+            ['start' => 48, 'end' => 26],
+            ['start' => 16, 'end' => 6],
         ];
     }
 
@@ -71,19 +93,36 @@ class GameController extends Controller
         return [$x, $y];
     }
 
-    public function calculateLadderGeometry(array $ladder): array
+    public function calculatePathGeometry(array $path, bool $isChute = false): array
     {
-        [$startX, $startY] = $this->getSquarePosition($ladder['start']);
-        [$endX, $endY] = $this->getSquarePosition($ladder['end']);
+        [$startX, $startY] = $this->getSquarePosition($path['start']);
+        [$endX, $endY] = $this->getSquarePosition($path['end']);
 
-        $ladderWidth = 20;
+        $width = $isChute ? 30 : 20;
         $angle = atan2($endY - $startY, $endX - $startX);
         $length = sqrt(pow($endX - $startX, 2) + pow($endY - $startY, 2));
         $steps = floor($length / 40);
 
-        // Calculate perpendicular offset for rails
-        $perpX = -sin($angle) * ($ladderWidth / 2);
-        $perpY = cos($angle) * ($ladderWidth / 2);
+        // Calculate perpendicular offset for rails/chute edges
+        $perpX = -sin($angle) * ($width / 2);
+        $perpY = cos($angle) * ($width / 2);
+
+        // For chutes, calculate control points for curved path
+        $controlPoints = [];
+        if ($isChute) {
+            $midX = ($startX + $endX) / 2;
+            $midY = ($startY + $endY) / 2;
+
+            // Offset control point perpendicular to the path
+            $offset = $length * 0.2; // 20% of path length
+            $controlX = $midX + cos($angle + M_PI / 2) * $offset;
+            $controlY = $midY + sin($angle + M_PI / 2) * $offset;
+
+            $controlPoints = [
+                'x' => $controlX,
+                'y' => $controlY,
+            ];
+        }
 
         return [
             'startX' => $startX,
@@ -93,6 +132,18 @@ class GameController extends Controller
             'perpX' => $perpX,
             'perpY' => $perpY,
             'steps' => $steps,
+            'controlPoints' => $controlPoints,
+            'width' => $width,
         ];
+    }
+
+    public function calculateLadderGeometry(array $ladder): array
+    {
+        return $this->calculatePathGeometry($ladder, false);
+    }
+
+    public function calculateChuteGeometry(array $chute): array
+    {
+        return $this->calculatePathGeometry($chute, true);
     }
 }
