@@ -13,6 +13,10 @@ class AuthController extends Controller
         if ($request->has('name')) {
             Session::put('user', ['name' => $request->input('name')]);
 
+            if ($request->has('game_id')) {
+                return redirect()->route('games.show', ['game_id' => $request->input('game_id')]);
+            }
+
             return redirect()->route('games.index');
         }
 

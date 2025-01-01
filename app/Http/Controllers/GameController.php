@@ -18,7 +18,7 @@ class GameController extends Controller
     public function show(Request $request, int $game_id)
     {
         if (! $request->session()->has('user')) {
-            return redirect('/login');
+            return redirect()->route('login.index', ['game_id' => $game_id]);
         }
 
         return view('game.show', [
