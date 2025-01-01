@@ -30,7 +30,7 @@
                     <!-- Draw Chutes first so they appear behind ladders -->
                     @foreach ($chutes as $chute)
                         @php
-                            $geometry = app(App\Http\Controllers\GameController::class)
+                            $geometry = app(App\Game\Board::class)
                                 ->calculateChuteGeometry($chute);
                         @endphp
 
@@ -56,7 +56,7 @@
                     <!-- Draw Ladders -->
                     @foreach ($ladders as $ladder)
                         @php
-                            $geometry = app(App\Http\Controllers\GameController::class)
+                            $geometry = app(App\Game\Board::class)
                                 ->calculateLadderGeometry($ladder);
                         @endphp
 
