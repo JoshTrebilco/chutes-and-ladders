@@ -110,9 +110,6 @@ class GameController extends Controller
         // For chutes, calculate control points for S-curved path
         $controlPoints = [];
         if ($isChute) {
-            $midX = ($startX + $endX) / 2;
-            $midY = ($startY + $endY) / 2;
-
             // Calculate two control points for S-curve
             $offset = $length * 0.4; // Increased offset for more pronounced curve
 
