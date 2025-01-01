@@ -101,7 +101,7 @@ class GameController extends Controller
         $width = $isChute ? 30 : 20;
         $angle = atan2($endY - $startY, $endX - $startX);
         $length = sqrt(pow($endX - $startX, 2) + pow($endY - $startY, 2));
-        $steps = floor($length / 40);
+        $steps = floor($length / 30);
 
         // Calculate perpendicular offset for rails/chute edges
         $perpX = -sin($angle) * ($width / 2);
