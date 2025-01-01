@@ -10,6 +10,9 @@
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form class="space-y-6" action="{{ route('login.store') }}" method="POST">
                 @csrf
+                @if($game_id)
+                    <input type="hidden" name="game_id" value="{{ $game_id }}">
+                @endif
                 <div>
                     <label for="name" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400">
                         Enter your name:
