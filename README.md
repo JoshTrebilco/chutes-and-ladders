@@ -1,10 +1,10 @@
-# Shoots and Ladders with Laravel Verbs
+# Chutes and Ladders with Laravel Verbs
 
 This is a learning project to explore event sourcing in Laravel using [Verbs](https://verbs.thunk.dev/), a powerful event sourcing package.
 
 ## Project Purpose
 
-The goal of this project is to implement the classic game "Shoots and Ladders" (also known as "Snakes and Ladders") while learning:
+The goal of this project is to implement the classic game "Chutes and Ladders" (also known as "Snakes and Ladders") while learning:
 
 -   Event sourcing principles
 -   Laravel Verbs package implementation
