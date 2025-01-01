@@ -107,20 +107,28 @@ class GameController extends Controller
         $perpX = -sin($angle) * ($width / 2);
         $perpY = cos($angle) * ($width / 2);
 
-        // For chutes, calculate control points for curved path
+        // For chutes, calculate control points for S-curved path
         $controlPoints = [];
         if ($isChute) {
             $midX = ($startX + $endX) / 2;
             $midY = ($startY + $endY) / 2;
 
-            // Offset control point perpendicular to the path
-            $offset = $length * 0.2; // 20% of path length
-            $controlX = $midX + cos($angle + M_PI / 2) * $offset;
-            $controlY = $midY + sin($angle + M_PI / 2) * $offset;
+            // Calculate two control points for S-curve
+            $offset = $length * 0.4; // Increased offset for more pronounced curve
+
+            // First control point curves right
+            $control1X = $startX + ($endX - $startX) * 0.25 + cos($angle + M_PI / 2) * $offset;
+            $control1Y = $startY + ($endY - $startY) * 0.25 + sin($angle + M_PI / 2) * $offset;
+
+            // Second control point curves left
+            $control2X = $startX + ($endX - $startX) * 0.75 + cos($angle - M_PI / 2) * $offset;
+            $control2Y = $startY + ($endY - $startY) * 0.75 + sin($angle - M_PI / 2) * $offset;
 
             $controlPoints = [
-                'x' => $controlX,
-                'y' => $controlY,
+                'c1x' => $control1X,
+                'c1y' => $control1Y,
+                'c2x' => $control2X,
+                'c2y' => $control2Y,
             ];
         }
 

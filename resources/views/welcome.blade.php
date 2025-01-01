@@ -37,15 +37,17 @@
                         <g class="stroke-red-500 dark:stroke-red-400" fill="none">
                             <!-- Curved chute path -->
                             <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
-                                   Q{{ $geometry['controlPoints']['x'] }} {{ $geometry['controlPoints']['y'] }}
-                                   {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
+                                   C{{ $geometry['controlPoints']['c1x'] }} {{ $geometry['controlPoints']['c1y'] }}
+                                    {{ $geometry['controlPoints']['c2x'] }} {{ $geometry['controlPoints']['c2y'] }}
+                                    {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
                                   stroke-width="{{ $geometry['width'] }}"
                                   class="opacity-20 dark:opacity-10" />
 
                             <!-- Chute edges -->
                             <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
-                                   Q{{ $geometry['controlPoints']['x'] }} {{ $geometry['controlPoints']['y'] }}
-                                   {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
+                                   C{{ $geometry['controlPoints']['c1x'] }} {{ $geometry['controlPoints']['c1y'] }}
+                                    {{ $geometry['controlPoints']['c2x'] }} {{ $geometry['controlPoints']['c2y'] }}
+                                    {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
                                   stroke-width="2"
                                   class="opacity-100" />
                         </g>
