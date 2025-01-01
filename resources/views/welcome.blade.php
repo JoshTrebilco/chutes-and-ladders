@@ -34,22 +34,22 @@
                                 ->calculateChuteGeometry($chute);
                         @endphp
 
-                        <g class="stroke-red-500 dark:stroke-red-400" fill="none">
+                        <g class="stroke-green-500 dark:stroke-green-400" fill="none">
                             <!-- Curved chute path -->
                             <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
                                    C{{ $geometry['controlPoints']['c1x'] }} {{ $geometry['controlPoints']['c1y'] }}
                                     {{ $geometry['controlPoints']['c2x'] }} {{ $geometry['controlPoints']['c2y'] }}
                                     {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
                                   stroke-width="{{ $geometry['width'] }}"
-                                  class="opacity-20 dark:opacity-10" />
+                                  class="opacity-20 dark:opacity-20" />
 
                             <!-- Chute edges -->
                             <path d="M{{ $geometry['startX'] }} {{ $geometry['startY'] }}
                                    C{{ $geometry['controlPoints']['c1x'] }} {{ $geometry['controlPoints']['c1y'] }}
                                     {{ $geometry['controlPoints']['c2x'] }} {{ $geometry['controlPoints']['c2y'] }}
                                     {{ $geometry['endX'] }} {{ $geometry['endY'] }}"
-                                  stroke-width="2"
-                                  class="opacity-100" />
+                                  stroke-width="4"
+                                  class="opacity-60" />
                         </g>
                     @endforeach
 
@@ -60,7 +60,7 @@
                                 ->calculateLadderGeometry($ladder);
                         @endphp
 
-                        <g class="stroke-amber-600 dark:stroke-amber-400" fill="none" stroke-width="4">
+                        <g class="stroke-amber-600 dark:stroke-amber-400 opacity-80 dark:opacity-60" fill="none" stroke-width="4">
                             <!-- Main rails -->
                             <path d="M{{ $geometry['startX'] - $geometry['perpX'] }} {{ $geometry['startY'] - $geometry['perpY'] }}
                                    L{{ $geometry['endX'] - $geometry['perpX'] }} {{ $geometry['endY'] - $geometry['perpY'] }}" />
