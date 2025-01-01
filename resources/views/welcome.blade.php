@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Shoots and Ladders</title>
+        <title>Chutes and Ladders</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=play:400,500,600&display=swap" rel="stylesheet" />
@@ -13,7 +13,7 @@
     </head>
     <body class="font-sans antialiased bg-gray-50 dark:bg-black">
         <div class="min-h-screen flex flex-col items-center justify-center">
-            <h1 class="text-4xl font-bold text-gray-800 dark:text-white">Shoots and Ladders</h1>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white">Chutes and Ladders</h1>
             <div class="mt-6 relative w-[600px] h-[600px]">
                 <div class="grid grid-cols-10 gap-1 w-full h-full bg-indigo-100 dark:bg-indigo-900 p-4 rounded-lg shadow-lg">
                     @foreach ($numbers as $number)
