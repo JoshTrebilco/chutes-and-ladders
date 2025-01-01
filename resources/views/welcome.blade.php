@@ -16,7 +16,7 @@
             <h1 class="text-4xl font-bold text-gray-800 dark:text-white">Chutes and Ladders</h1>
             <div class="mt-6 relative w-[600px] h-[600px]">
                 <div class="grid grid-cols-10 gap-1 w-full h-full bg-indigo-100 dark:bg-indigo-900 p-4 rounded-lg shadow-lg">
-                    @foreach ($numbers as $number)
+                    @foreach ($board->numbers as $number)
                         <div class="aspect-square flex items-center justify-center border border-indigo-300 dark:border-indigo-600 rounded
                             {{ ($number % 2 == 0)
                                 ? 'bg-indigo-50 dark:bg-indigo-800 text-gray-700 dark:text-indigo-100'
@@ -28,10 +28,9 @@
 
                 <svg class="absolute inset-0 pointer-events-none" viewBox="0 0 600 600">
                     <!-- Draw Chutes first so they appear behind ladders -->
-                    @foreach ($chutes as $chute)
+                    @foreach ($board->chutes as $chute)
                         @php
-                            $geometry = app(App\Game\Board::class)
-                                ->calculateChuteGeometry($chute);
+                            $geometry = $board->calculateChuteGeometry($chute);
                         @endphp
 
                         <g class="stroke-green-500 dark:stroke-green-400" fill="none">
@@ -54,10 +53,9 @@
                     @endforeach
 
                     <!-- Draw Ladders -->
-                    @foreach ($ladders as $ladder)
+                    @foreach ($board->ladders as $ladder)
                         @php
-                            $geometry = app(App\Game\Board::class)
-                                ->calculateLadderGeometry($ladder);
+                            $geometry = $board->calculateLadderGeometry($ladder);
                         @endphp
 
                         <g class="stroke-amber-600 dark:stroke-amber-400 opacity-80 dark:opacity-60" fill="none" stroke-width="4">

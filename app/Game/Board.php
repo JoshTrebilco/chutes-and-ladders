@@ -12,6 +12,18 @@ class Board
 
     private const GAP = 4;
 
+    public function __construct(
+        public array $numbers = [],
+        public array $ladders = [],
+        public array $chutes = [],
+        public float $squareSize = 0,
+    ) {
+        $this->numbers = $this->generateBoardNumbers();
+        $this->ladders = $this->getLadders();
+        $this->chutes = $this->getChutes();
+        $this->squareSize = $this->calculateSquareSize();
+    }
+
     public function generateBoardNumbers(): array
     {
         $numbers = [];
