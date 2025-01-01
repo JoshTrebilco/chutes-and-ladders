@@ -11,7 +11,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-gray-50 dark:bg-black">
+    <body class="font-sans antialiased bg-gray-50 dark:bg-slate-950">
         <div class="min-h-screen flex flex-col items-center justify-center">
             <h1 class="text-4xl font-bold text-gray-800 dark:text-white">Chutes and Ladders</h1>
             <div class="mt-6 relative w-[600px] h-[600px]">
