@@ -77,9 +77,6 @@
             </dd>
         </div>
         <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">
-                Last roll by {{ $game->lastPlayer()?->name }}
-            </dt>
             <dd class="text-gray-900">
                 <div class="flex items-center justify-center p-2">
                     <x-die :value="$game->last_roll" />
