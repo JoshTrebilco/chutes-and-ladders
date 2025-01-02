@@ -61,5 +61,27 @@
                 @endfor
             </g>
         @endforeach
+
+        @foreach ($game->players() as $player)
+            @php
+                [$tokenX, $tokenY] = $board->getSquarePosition($player->position);
+            @endphp
+            <g class="player-token">
+                <!-- Token background -->
+                <circle
+                    cx="{{ $tokenX }}"
+                    cy="{{ $tokenY }}"
+                    r="15"
+                    class="fill-blue-400 dark:fill-blue-500 opacity-40 dark:opacity-50 stroke-blue-600 dark:stroke-blue-400 stroke-2"
+                />
+                <!-- Token border -->
+                <circle
+                    cx="{{ $tokenX }}"
+                    cy="{{ $tokenY }}"
+                    r="15"
+                    class="fill-none stroke-blue-600 dark:stroke-blue-400 stroke-4"
+                />
+            </g>
+        @endforeach
     </svg>
 </div>

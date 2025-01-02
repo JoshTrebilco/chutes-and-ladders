@@ -8,7 +8,7 @@ class PlayerState extends State
 {
     public bool $setup = false;
 
-    public int $square;
+    public int $position;
 
     public string $name;
 }
