@@ -38,6 +38,11 @@ class GameState extends State
         return in_array($player, $this->player_ids);
     }
 
+    public function hasEnoughPlayers(): bool
+    {
+        return count($this->player_ids) > 1;
+    }
+
     public function moveToNextPlayer(): static
     {
         $active_index = array_search($this->active_player_id, $this->player_ids);

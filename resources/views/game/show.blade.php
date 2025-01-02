@@ -137,7 +137,7 @@
                     </button>
                 </form>
             @endif
-            @if ($game->started && $game->players()->count() > 1 && ! $game->activePlayer())
+            @if ($game->started && $game->hasEnoughPlayers() && ! $game->activePlayer())
                 <form action="{{ route('players.startGame', ['game_id' => $game->id]) }}" method="post">
                     @csrf
                     <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 lg:w-auto">
