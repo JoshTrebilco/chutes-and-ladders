@@ -1,5 +1,7 @@
 # Chutes and Ladders with Laravel Verbs
 
+![image](https://github.com/user-attachments/assets/66e77f54-d9f9-463b-962c-9d533833551d)
+
 This is a learning project to explore event sourcing in Laravel using [Verbs](https://verbs.thunk.dev/), a powerful event sourcing package.
 
 ## Project Purpose
