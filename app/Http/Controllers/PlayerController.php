@@ -88,10 +88,12 @@ class PlayerController extends Controller
             position: $position,
         ));
 
-        event(new EndedTurn(
-            game_id: $game_id,
-            player_id: $player_id,
-        ));
+        if ($die !== 6) {
+            event(new EndedTurn(
+                game_id: $game_id,
+                player_id: $player_id,
+            ));
+        }
 
         if ($position === 100) {
             event(new PlayerWonGame(
