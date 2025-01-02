@@ -4,18 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Events\Gameplay\RolledDice;
 use App\Events\Setup\FirstPlayerSelected;
+use App\Events\Setup\PlayerColorSelected;
 use App\Events\Setup\PlayerJoinedGame;
 use App\States\GameState;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Session;
 
 class PlayerController extends Controller
 {
-    public function store(int $game_id)
+    public function join(Request $request, int $game_id)
     {
         $player_id = snowflake_id();
 
         Session::put('user.current_player_id', $player_id);
+
+        event(new PlayerColorSelected(
+            game_id: $game_id,
+            player_id: $player_id,
+            color: $request->color,
+        ));
 
         event(new PlayerJoinedGame(
             game_id: $game_id,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\Setup\GameStarted;
 use App\Game\Board;
 use App\States\GameState;
+use App\States\PlayerState;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 

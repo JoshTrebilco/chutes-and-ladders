@@ -72,14 +72,14 @@
                     cx="{{ $tokenX }}"
                     cy="{{ $tokenY }}"
                     r="15"
-                    class="fill-blue-400 dark:fill-blue-500 opacity-40 dark:opacity-50 stroke-blue-600 dark:stroke-blue-400 stroke-2"
+                    class="fill-{{ $player->color }}-500 opacity-50 stroke-{{ $player->color }}-400 stroke-2"
                 />
                 <!-- Token border -->
                 <circle
                     cx="{{ $tokenX }}"
                     cy="{{ $tokenY }}"
                     r="15"
-                    class="fill-none stroke-blue-600 dark:stroke-blue-400 stroke-4"
+                    class="fill-none stroke-{{ $player->color }}-400 stroke-4"
                 />
             </g>
         @endforeach

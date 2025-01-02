@@ -18,6 +18,8 @@ class GameState extends State
 
     public CarbonImmutable $started_at;
 
+    public array $available_colors = ['blue', 'green', 'red', 'yellow'];
+
     /** @return Collection<int, PlayerState> */
     public function players(): Collection
     {
