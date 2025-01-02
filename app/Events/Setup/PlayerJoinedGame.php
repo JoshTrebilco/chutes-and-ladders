@@ -20,6 +20,7 @@ class PlayerJoinedGame extends Event
     public function validateGame(GameState $game)
     {
         $this->assert($game->started, 'Game must be started before a player can join.');
+        $this->assert(! $game->isInProgress(), 'The game is already in progress.');
     }
 
     public function validatePlayer(PlayerState $player)

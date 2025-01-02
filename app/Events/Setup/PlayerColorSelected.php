@@ -26,6 +26,7 @@ class PlayerColorSelected extends Event
     {
         $this->assert($game->available_colors, 'Game must have available colors before a player can select a color.');
         $this->assert(in_array($this->color, $game->available_colors), 'Color is not available.');
+        $this->assert(! $game->isInProgress(), 'The game is already in progress.');
     }
 
     public function applyToPlayers(PlayerState $player)

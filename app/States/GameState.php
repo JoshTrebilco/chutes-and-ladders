@@ -45,6 +45,11 @@ class GameState extends State
         return $this->winner_id ? PlayerState::load($this->winner_id) : null;
     }
 
+    public function isInProgress(): bool
+    {
+        return $this->activePlayer() !== null;
+    }
+
     public function hasPlayer(PlayerState|int|null $player): bool
     {
         if (! $player) {
