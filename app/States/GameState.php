@@ -18,6 +18,8 @@ class GameState extends State
 
     public ?int $active_player_id = null;
 
+    public ?int $winner_id = null;
+
     public CarbonImmutable $started_at;
 
     public array $available_colors = ['blue', 'green', 'red', 'yellow'];
@@ -36,6 +38,11 @@ class GameState extends State
     public function lastPlayer(): ?PlayerState
     {
         return $this->last_player_id ? PlayerState::load($this->last_player_id) : null;
+    }
+
+    public function winner(): ?PlayerState
+    {
+        return $this->winner_id ? PlayerState::load($this->winner_id) : null;
     }
 
     public function hasPlayer(PlayerState|int|null $player): bool

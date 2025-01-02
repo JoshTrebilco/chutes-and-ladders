@@ -6,6 +6,7 @@ use App\Events\Gameplay\EndedTurn;
 use App\Events\Gameplay\PlayerClimbedLadder;
 use App\Events\Gameplay\PlayerFellDownChute;
 use App\Events\Gameplay\PlayerMoved;
+use App\Events\Gameplay\PlayerWonGame;
 use App\Events\Gameplay\RolledDice;
 use App\Events\Setup\FirstPlayerSelected;
 use App\Events\Setup\PlayerColorSelected;
@@ -77,6 +78,10 @@ class PlayerController extends Controller
             $position = $board->ladder($position);
         }
 
+        if ($position > 100) {
+            $position = 100;
+        }
+
         event(new PlayerMoved(
             game_id: $game_id,
             player_id: $player_id,
@@ -87,6 +92,13 @@ class PlayerController extends Controller
             game_id: $game_id,
             player_id: $player_id,
         ));
+
+        if ($position === 100) {
+            event(new PlayerWonGame(
+                game_id: $game_id,
+                player_id: $player_id,
+            ));
+        }
 
         return redirect()->route('games.show', $game_id);
     }
