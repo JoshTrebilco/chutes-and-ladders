@@ -21,10 +21,16 @@ class GameController extends Controller
             return redirect()->route('login.index', ['game_id' => $game_id]);
         }
 
+        $auth_player = null;
+
+        if ($request->session()->has('user.current_player_id')) {
+            $auth_player = PlayerState::load($request->session()->get('user.current_player_id'));
+        }
+
         return view('game.show', [
             'board' => new Board,
             'game' => GameState::load($game_id),
-            'player_id' => $request->session()->get('user.current_player_id'),
+            'auth_player' => $auth_player,
         ]);
     }
 

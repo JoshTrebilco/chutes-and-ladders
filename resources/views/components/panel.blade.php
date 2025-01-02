@@ -1,6 +1,6 @@
-@props(['game', 'player_id'])
+@props(['game', 'auth_player'])
 <div>
-    @if($game->hasPlayer($player_id) && ! $game->activePlayer())
+    @if($game->hasPlayer($auth_player?->id) && ! $game->activePlayer())
         <div class="rounded-md bg-green-50 p-4 mb-5">
             <div class="flex">
                 <div class="flex-shrink-0">
@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    @if(! $game->hasPlayer($player_id))
+    @if(! $game->hasPlayer($auth_player?->id))
         <form class="mb-5" action="{{ route('players.store', ['game_id' => $game->id]) }}" method="post">
             @csrf
             <button
@@ -37,7 +37,7 @@
             <dd class="mt-1 tracking-tight text-gray-900">
                 <ul class="">
                     @foreach ($game->players() as $player)
-                        <li class="text-sm text-nowrap">{{ $player->name }} {{ $player->id == $player_id ? '(you)' : '' }} {{ $player->id == $game->activePlayer()?->id ? '(active)' : '' }}</li>
+                        <li class="text-sm text-nowrap">{{ $player->name }} {{ $player->id == $auth_player?->id ? '(you)' : '' }} {{ $player->id == $game->activePlayer()?->id ? '(active)' : '' }}</li>
                     @endforeach
                 </ul>
             </dd>
@@ -55,8 +55,8 @@
                 </div>
             </dd>
         </div>
-        @if ($game->hasPlayer($player_id) && $game->activePlayer()?->id == $player_id)
-            <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $player_id]) }}" method="post">
+        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
+            <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post">
                 @csrf
                 <button
                     type="submit"
