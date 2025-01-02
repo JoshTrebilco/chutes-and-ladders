@@ -35,6 +35,6 @@ class GameController extends Controller
     {
         $event = GameStarted::fire();
 
-        return redirect("/games/{$event->game_id}");
+        return redirect()->route('games.show', $event->game_id);
     }
 }
