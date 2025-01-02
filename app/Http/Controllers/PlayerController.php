@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Gameplay\EndedTurn;
+use App\Events\Gameplay\PlayerMoved;
 use App\Events\Gameplay\RolledDice;
 use App\Events\Setup\FirstPlayerSelected;
 use App\Events\Setup\PlayerColorSelected;
 use App\Events\Setup\PlayerJoinedGame;
 use App\States\GameState;
+use App\States\PlayerState;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Session;
@@ -41,6 +44,19 @@ class PlayerController extends Controller
             game_id: $game_id,
             player_id: $player_id,
             die: $die,
+        ));
+
+        $player = PlayerState::load($player_id);
+
+        event(new PlayerMoved(
+            game_id: $game_id,
+            player_id: $player_id,
+            position: $player->position + $die,
+        ));
+
+        event(new EndedTurn(
+            game_id: $game_id,
+            player_id: $player_id,
         ));
 
         return redirect()->route('games.show', $game_id);

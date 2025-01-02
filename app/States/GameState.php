@@ -12,6 +12,8 @@ class GameState extends State
 
     public ?int $last_roll = null;
 
+    public ?int $last_player_id = null;
+
     public array $player_ids = [];
 
     public ?int $active_player_id = null;
