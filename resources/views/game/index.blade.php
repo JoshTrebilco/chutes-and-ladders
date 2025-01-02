@@ -55,4 +55,17 @@
             </form>
         </div>
     </div>
+
+    @if(session('user'))
+        <form action="{{ route('logout.destroy') }}" method="post">
+        @csrf
+            <button type="submit" class="mt-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                Logout {{ session('user.name') }}
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login.index') }}" class="mt-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+            Login
+        </a>
+    @endif
 </x-layout>

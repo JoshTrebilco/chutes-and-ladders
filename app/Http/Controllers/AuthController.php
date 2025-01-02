@@ -25,4 +25,11 @@ class AuthController extends Controller
 
         return redirect()->route('games.index');
     }
+
+    public function destroy(Request $request)
+    {
+        $request->session()->forget('user');
+
+        return redirect()->route('games.index');
+    }
 }
