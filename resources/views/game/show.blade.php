@@ -122,8 +122,13 @@
                 <dt class="truncate text-sm font-medium text-gray-500">
                     Last roll
                 </dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                    {{ $game->last_roll }}
+                <dd class="text-gray-900">
+                    <div class="flex items-center justify-center p-4">
+                        <x-die :value="$game->last_roll" />
+                    </div>
+                    <div class="text-3xl font-semibold tracking-tight text-center">
+                        {{ $game->last_roll ?: '-' }}
+                    </div>
                 </dd>
             </div>
             @if ($player_id && $game->hasPlayer($player_id) && $game->activePlayer()?->id == $player_id)
