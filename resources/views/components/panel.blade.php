@@ -1,7 +1,7 @@
 @props(['game', 'player_id'])
 <div>
-    @if($player_id && $game->hasPlayer($player_id))
-        <div class="rounded-md bg-green-50 p-4">
+    @if($game->hasPlayer($player_id) && ! $game->activePlayer())
+        <div class="rounded-md bg-green-50 p-4 mb-5">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -15,8 +15,10 @@
                 </div>
             </div>
         </div>
-    @else
-        <form action="{{ route('players.store', ['game_id' => $game->id]) }}" method="post">
+    @endif
+
+    @if(! $game->hasPlayer($player_id))
+        <form class="mb-5" action="{{ route('players.store', ['game_id' => $game->id]) }}" method="post">
             @csrf
             <button
                 type="submit"
@@ -27,15 +29,7 @@
         </form>
     @endif
 
-    <div class="mt-5 grid grid-cols-2 gap-5 lg:grid-cols-1">
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow lg:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">
-                Total players
-            </dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                {{ count($game->player_ids) }}
-            </dd>
-        </div>
+    <div class="grid grid-cols-2 gap-5 lg:grid-cols-1">
         <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow lg:p-6">
             <dt class="truncate text-sm font-medium text-gray-500">
                 Players
@@ -61,7 +55,7 @@
                 </div>
             </dd>
         </div>
-        @if ($player_id && $game->hasPlayer($player_id) && $game->activePlayer()?->id == $player_id)
+        @if ($game->activePlayer()?->id == $player_id)
             <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $player_id]) }}" method="post">
                 @csrf
                 <button
