@@ -70,6 +70,26 @@ class Board
         ];
     }
 
+    public function chute(int $position): int
+    {
+        return array_column($this->getChutes(), 'end', 'start')[$position];
+    }
+
+    public function ladder(int $position): int
+    {
+        return array_column($this->getLadders(), 'end', 'start')[$position];
+    }
+
+    public function hasChute(int $position): bool
+    {
+        return in_array($position, array_column($this->getChutes(), 'start'));
+    }
+
+    public function hasLadder(int $position): bool
+    {
+        return in_array($position, array_column($this->getLadders(), 'start'));
+    }
+
     public function calculateSquareSize(): float
     {
         return (self::BOARD_SIZE - 2 * self::PADDING - ((self::GRID_SIZE - 1) * self::GAP)) / self::GRID_SIZE;
