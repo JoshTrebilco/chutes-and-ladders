@@ -1,4 +1,4 @@
-<div wire:poll.5s="pollGameState">
+<div wire:poll.1s="pollGameState">
     <div class="mt-2 lg:mt-5 flex flex-col gap-5 lg:flex-row">
         <x-board :board="$board" :game="$game" />
         <x-panel :game="$game" :auth_player="$authPlayer" />
