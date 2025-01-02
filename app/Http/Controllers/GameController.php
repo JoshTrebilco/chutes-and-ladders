@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\Setup\GameStarted;
-use App\States\GameState;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -27,7 +26,7 @@ class GameController extends Controller
         }
 
         return view('game.show', [
-            'game' => GameState::load($game_id),
+            'game_id' => $game_id,
             'auth_player_id' => $auth_player_id,
         ]);
     }
