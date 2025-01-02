@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Gameplay\RolledDice;
 use App\Events\Setup\FirstPlayerSelected;
 use App\Events\Setup\PlayerJoinedGame;
 use App\States\GameState;
@@ -19,6 +20,19 @@ class PlayerController extends Controller
         event(new PlayerJoinedGame(
             game_id: $game_id,
             player_id: $player_id,
+        ));
+
+        return redirect()->route('games.show', $game_id);
+    }
+
+    public function rollDice(int $game_id, int $player_id)
+    {
+        $die = rand(1, 6);
+
+        event(new RolledDice(
+            game_id: $game_id,
+            player_id: $player_id,
+            die: $die,
         ));
 
         return redirect()->route('games.show', $game_id);

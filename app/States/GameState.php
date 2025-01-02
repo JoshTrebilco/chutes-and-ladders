@@ -10,6 +10,8 @@ class GameState extends State
 {
     public bool $started = false;
 
+    public ?int $last_roll = null;
+
     public array $player_ids = [];
 
     public ?int $active_player_id = null;

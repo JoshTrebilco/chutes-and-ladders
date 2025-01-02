@@ -113,11 +113,30 @@
                 <dd class="mt-1 tracking-tight text-gray-900">
                     <ul class="">
                         @foreach ($game->players() as $player)
-                            <li class="text-sm text-nowrap">{{ $player->name }} {{ $player->id == $player_id ? '(you)' : '' }}</li>
+                            <li class="text-sm text-nowrap">{{ $player->name }} {{ $player->id == $player_id ? '(you)' : '' }} {{ $player->id == $game->activePlayer()?->id ? '(active)' : '' }}</li>
                         @endforeach
                     </ul>
                 </dd>
             </div>
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow lg:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">
+                    Last roll
+                </dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+                    {{ $game->last_roll }}
+                </dd>
+            </div>
+            @if ($player_id && $game->hasPlayer($player_id) && $game->activePlayer()?->id == $player_id)
+                <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $player_id]) }}" method="post">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:w-auto"
+                    >
+                        Roll Dice
+                    </button>
+                </form>
+            @endif
             @if ($game->started && $game->players()->count() > 1 && ! $game->activePlayer())
                 <form action="{{ route('players.startGame', ['game_id' => $game->id]) }}" method="post">
                     @csrf
