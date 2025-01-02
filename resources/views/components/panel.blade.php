@@ -55,7 +55,7 @@
                 </div>
             </dd>
         </div>
-        @if ($game->activePlayer()?->id == $player_id)
+        @if ($game->hasPlayer($player_id) && $game->activePlayer()?->id == $player_id)
             <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $player_id]) }}" method="post">
                 @csrf
                 <button
