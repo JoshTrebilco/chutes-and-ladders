@@ -46,7 +46,7 @@
     @endif
 
     <div class="grid grid-cols-2 gap-5 lg:grid-cols-1">
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow lg:p-6">
+        <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6">
             <dt class="truncate text-sm font-medium text-gray-500">
                 Players
             </dt>
@@ -67,30 +67,31 @@
                 </ul>
             </dd>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow lg:p-6">
+        <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6">
             <dt class="truncate text-sm font-medium text-gray-500">
-                Last roll
+                Last roll by {{ $game->lastPlayer()?->name }}
             </dt>
             <dd class="text-gray-900">
-                <div class="flex items-center justify-center p-4">
+                <div class="flex items-center justify-center p-2">
                     <x-die :value="$game->last_roll" />
                 </div>
-                <div class="text-3xl font-semibold tracking-tight text-center">
-                    {{ $game->last_roll ?: '-' }}
-                </div>
+                @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
+                    <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:w-auto"
+                        >
+                            Roll Dice
+                        </button>
+                    </form>
+                @else
+                    <div class="h-9 w-full">
+                    </div>
+                @endif
             </dd>
         </div>
-        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-            <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post">
-                @csrf
-                <button
-                    type="submit"
-                    class="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:w-auto"
-                >
-                    Roll Dice
-                </button>
-            </form>
-        @endif
+
         @if ($game->started && $game->hasEnoughPlayers() && ! $game->activePlayer())
             <form action="{{ route('players.startGame', ['game_id' => $game->id]) }}" method="post">
                 @csrf

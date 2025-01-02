@@ -33,6 +33,11 @@ class GameState extends State
         return $this->active_player_id ? PlayerState::load($this->active_player_id) : null;
     }
 
+    public function lastPlayer(): ?PlayerState
+    {
+        return $this->last_player_id ? PlayerState::load($this->last_player_id) : null;
+    }
+
     public function hasPlayer(PlayerState|int|null $player): bool
     {
         if (! $player) {
