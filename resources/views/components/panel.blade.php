@@ -54,7 +54,7 @@
         </form>
     @endif
 
-    <div class="grid grid-cols-2 gap-5 lg:grid-cols-1">
+    <div class="grid grid-cols-2 gap-5 lg:grid-cols-1 {{ $game->hasPlayer($auth_player?->id) ? '' : 'hidden' }}">
         <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6">
             <dt class="truncate text-sm font-medium text-gray-500">
                 Players
@@ -76,7 +76,7 @@
                 </ul>
             </dd>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6">
+        <div class="overflow-hidden rounded-lg bg-white p-3 shadow lg:p-6 {{ $game->isInProgress() ? '' : 'hidden' }}">
             <dd class="text-gray-900">
                 <div class="flex items-center justify-center p-2">
                     <x-die :value="$game->last_roll" />
