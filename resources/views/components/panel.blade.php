@@ -92,7 +92,8 @@
                         </button>
                     </form>
                 @else
-                    <div class="h-9 w-full">
+                    <div class="h-9 w-full inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-gray-900">
+                        It's {{ $game->activePlayer()?->name }}'s turn
                     </div>
                 @endif
             </dd>
