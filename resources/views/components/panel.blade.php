@@ -17,7 +17,7 @@
         </div>
     @endif --}}
 
-    @if(! $game->hasPlayer($auth_player?->id))
+    @if(! $game->hasPlayer($auth_player?->id) && ! $game->isInProgress())
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl">
             <div class="flex items-center space-x-3 mb-4">
                 <div class="flex-shrink-0">
@@ -93,7 +93,7 @@
         </div>
     @endif
 
-    @if ($game->started && $game->hasEnoughPlayers() && ! $game->activePlayer())
+    @if ($game->started && $game->hasEnoughPlayers() && ! $game->isInProgress())
         <form action="{{ route('players.startGame', ['game_id' => $game->id]) }}" method="post">
             @csrf
             <button type="submit"
@@ -103,7 +103,23 @@
         </form>
     @endif
 
-    <div class="grid gap-6 grid-cols-2 lg:grid-cols-1  {{ $game->hasPlayer($auth_player?->id) ? '' : 'hidden' }}">
+    @if(! $game->hasPlayer($auth_player?->id) && $game->isInProgress())
+        <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl lg:max-w-60">
+                <div>
+                    <h3 class="text-lg font-semibold text-blue-300">
+                        Game in Progress
+                    </h3>
+                    <p class="text-blue-200/80 text-sm mt-4">
+                        You're spectating this game.
+                    </p>
+                    <p class="text-blue-200/80 text-sm mt-2">
+                        Wait for it to finish before joining a new one!
+                    </p>
+                </div>
+        </div>
+    @endif
+
+    <div class="grid gap-6 grid-cols-2 lg:grid-cols-1">
         <!-- Players List -->
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl">
             <h3 class="text-lg font-semibold text-blue-300 mb-4">Players</h3>
