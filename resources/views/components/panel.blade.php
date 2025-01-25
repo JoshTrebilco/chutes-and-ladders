@@ -81,19 +81,14 @@
                 <div class="flex items-center justify-center p-2">
                     <x-die :value="$game->last_roll" />
                 </div>
-                @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                    <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post">
-                        @csrf
-                        <button
-                            type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            Roll Dice
-                        </button>
-                    </form>
-                @else
-                    <div class="h-9 w-full inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-gray-900">
-                        It's {{ $game->activePlayer()?->name }}'s turn
+
+                @if ($game->hasPlayer($auth_player?->id))
+                    <div class="text-sm font-medium text-center {{ $game->activePlayer()?->id == $auth_player?->id ? 'text-green-600' : 'text-gray-500' }}">
+                        @if ($game->activePlayer()?->id == $auth_player?->id)
+                            It's your turn! Click a token to move it
+                        @else
+                            Waiting for {{ $game->activePlayer()?->name }}'s turn
+                        @endif
                     </div>
                 @endif
             </dd>

@@ -35,7 +35,6 @@ class PlayerJoinedGame extends Event
 
     public function applyToPlayers(PlayerState $player)
     {
-        $player->position = 1;
         $player->setup = true;
         $player->name = Session::get('user.name');
     }

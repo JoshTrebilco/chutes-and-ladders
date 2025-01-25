@@ -12,5 +12,5 @@ Route::post('/logout', [AuthController::class, 'destroy'])->name('logout.destroy
 Route::post('/games', [GameController::class, 'store'])->name('games.store');
 Route::get('/games/{game_id}', [GameController::class, 'show'])->name('games.show');
 Route::post('/games/{game_id}/join', [PlayerController::class, 'join'])->name('players.join');
-Route::post('/games/{game_id}/players/{player_id}/roll-dice', [PlayerController::class, 'rollDice'])->name('players.rollDice');
+Route::post('/games/{game_id}/players/{player_id}/roll-dice/{token_id}', [PlayerController::class, 'rollDice'])->name('players.rollDice');
 Route::post('/games/{game_id}/start-game', [PlayerController::class, 'startGame'])->name('players.startGame');

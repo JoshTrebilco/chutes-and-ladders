@@ -4,11 +4,11 @@ namespace App\Events\Gameplay;
 
 use Thunk\Verbs\Event;
 
-class PlayerClimbedLadder extends Event
+class TokenFellDownChute extends Event
 {
     public function __construct(
         public int $game_id,
-        public int $player_id,
+        public int $token_id,
         public int $start,
         public int $end,
     ) {}

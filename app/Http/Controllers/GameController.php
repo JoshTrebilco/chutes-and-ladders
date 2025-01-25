@@ -21,8 +21,8 @@ class GameController extends Controller
 
         $auth_player_id = null;
 
-        if ($request->session()->has('user.current_player_id')) {
-            $auth_player_id = $request->session()->get('user.current_player_id');
+        if ($request->session()->has("user.player_ids.{$game_id}")) {
+            $auth_player_id = $request->session()->get("user.player_ids.{$game_id}");
         }
 
         return view('game.show', [

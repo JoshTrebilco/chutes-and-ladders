@@ -17,6 +17,7 @@ class RolledDice extends Event
     public function __construct(
         public int $game_id,
         public int $player_id,
+        public int $token_id,
         public int $die,
     ) {
         if ($die < 1 || $die > 6) {
@@ -27,6 +28,11 @@ class RolledDice extends Event
     public function validateGame(GameState $game)
     {
         $this->assert($game->last_player_id !== $this->player_id, 'You already rolled the dice.');
+    }
+
+    public function validatePlayer(PlayerState $player)
+    {
+        $this->assert(in_array($this->token_id, $player->token_ids), 'You can only move your own tokens.');
     }
 
     public function applyToGame(GameState $game)
