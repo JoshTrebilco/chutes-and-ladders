@@ -1,44 +1,69 @@
 @php use Illuminate\Support\Facades\Session; @endphp
 <x-layout>
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-gray-400">
-                Sign in to Chutes and Ladders
-            </h2>
-        </div>
+    <div class="min-h-screen w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Hero Section -->
+            <div class="text-center mb-16">
+                <h1 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500 mb-4">
+                    Welcome
+                </h1>
+                <p class="text-xl text-purple-600 dark:text-blue-300">
+                    Ready to start your adventure? 🎲
+                </p>
+            </div>
 
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form class="space-y-6" action="{{ route('login.store') }}" method="POST">
-                @csrf
-                @if($game_id)
-                    <input type="hidden" name="game_id" value="{{ $game_id }}">
-                @endif
-                <div>
-                    <label for="name" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-400">
-                        Enter your name:
-                    </label>
-                    <div class="mt-2">
-                        <input
-                            id="name"
-                            name="name"
-                            autocomplete="name"
-                            value="{{ Session::get('user.name') }}"
-                            required
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-400 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        >
+            <!-- Login Card -->
+            <div class="max-w-md mx-auto">
+                <div class="bg-white dark:bg-slate-950 rounded-2xl shadow-xl transform transition duration-500 hover:scale-105">
+                    <div class="p-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full mb-6 mx-auto">
+                            <svg class="w-8 h-8 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+
+                        <form class="space-y-6" action="{{ route('login.store') }}" method="POST">
+                            @csrf
+                            @if($game_id)
+                                <input type="hidden" name="game_id" value="{{ $game_id }}">
+                            @endif
+
+                            <div>
+                                <label for="name" class="block text-lg font-semibold text-purple-900 dark:text-blue-300 mb-2">
+                                    Enter your name:
+                                </label>
+                                <input
+                                    id="name"
+                                    name="name"
+                                    autocomplete="name"
+                                    value="{{ Session::get('user.name') }}"
+                                    required
+                                    class="w-full px-4 py-3 rounded-lg border-2 border-purple-200 dark:border-purple-700 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 focus:outline-none dark:bg-slate-900 text-purple-900 dark:text-blue-100 placeholder-purple-400 dark:placeholder-blue-500"
+                                    placeholder="Your adventurer name..."
+                                >
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg px-4 py-3 font-semibold transform transition hover:translate-y-[-2px]"
+                            >
+                                Begin Adventure
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                <div>
-                    <button
-                        type="submit"
-                        class="mt-4 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                        Sign in
-                    </button>
+                <!-- Back Link -->
+                <div class="mt-8 text-center">
+                    <a href="{{ route('games.index') }}"
+                        class="inline-flex items-center space-x-2 text-purple-600 dark:text-blue-300 hover:translate-x-[-2px] transition-transform">
+                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span>Back to Games</span>
+                    </a>
                 </div>
-            </form>
-
+            </div>
         </div>
     </div>
 </x-layout>

@@ -1,16 +1,29 @@
 <svg style="width: {{ $size }}px; height: {{ $size }}px;" viewBox="0 0 {{ $size }} {{ $size }}">
     <g class="player-token">
+        <!-- Token glow effect -->
+        <circle
+            cx="{{ $size / 2 }}"
+            cy="{{ $size / 2 }}"
+            r="{{ $size * 0.36 }}"
+            @class([
+                'transition-opacity',
+                'fill-blue-500/20' => $color === 'blue',
+                'fill-green-500/20' => $color === 'green',
+                'fill-red-500/20' => $color === 'red',
+                'fill-yellow-500/20' => $color === 'yellow',
+            ])
+        />
         <!-- Token background -->
         <circle
             cx="{{ $size / 2 }}"
             cy="{{ $size / 2 }}"
             r="{{ $size * 0.3 }}"
             @class([
-                'opacity-50 stroke-2 group-hover:opacity-80 transition-opacity',
-                'fill-blue-500 stroke-blue-400' => $color === 'blue',
-                'fill-green-500 stroke-green-400' => $color === 'green',
-                'fill-red-500 stroke-red-400' => $color === 'red',
-                'fill-yellow-500 stroke-yellow-400' => $color === 'yellow',
+                'transition-opacity',
+                'fill-blue-500/50 stroke-blue-400' => $color === 'blue',
+                'fill-green-500/50 stroke-green-400' => $color === 'green',
+                'fill-red-500/50 stroke-red-400' => $color === 'red',
+                'fill-yellow-500/50 stroke-yellow-400' => $color === 'yellow',
             ])
         />
         <!-- Token border -->
@@ -19,11 +32,11 @@
             cy="{{ $size / 2 }}"
             r="{{ $size * 0.3 }}"
             @class([
-                'fill-none stroke-4',
-                'stroke-blue-400' => $color === 'blue',
-                'stroke-green-400' => $color === 'green',
-                'stroke-red-400' => $color === 'red',
-                'stroke-yellow-400' => $color === 'yellow',
+                'fill-none stroke-[3]',
+                'stroke-blue-300' => $color === 'blue',
+                'stroke-green-300' => $color === 'green',
+                'stroke-red-300' => $color === 'red',
+                'stroke-yellow-300' => $color === 'yellow',
             ])
         />
     </g>
