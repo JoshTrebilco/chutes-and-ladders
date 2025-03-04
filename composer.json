@@ -13,8 +13,7 @@
         "hirethunk/verbs": "^0.6.4",
         "laravel/framework": "^11.31",
         "laravel/reverb": "^1.0",
-        "laravel/tinker": "^2.9",
-        "livewire/livewire": "^3.5"
+        "laravel/tinker": "^2.9"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Setup\GameStarted;
+use App\Game\Board;
+use App\States\GameState;
+use App\States\PlayerState;
 use Illuminate\Http\Request;
+use App\Events\Setup\GameStarted;
 use Illuminate\Routing\Controller;
 
 class GameController extends Controller
@@ -19,15 +22,19 @@ class GameController extends Controller
             return redirect()->route('login.index', ['game_id' => $game_id]);
         }
 
-        $auth_player_id = null;
+        $authPlayer = null;
 
         if ($request->session()->has('user.current_player_id')) {
-            $auth_player_id = $request->session()->get('user.current_player_id');
+            $authPlayer = PlayerState::load($request->session()->get('user.current_player_id'));
         }
 
+        $game = GameState::load($game_id);
+        $board = new Board;
+
         return view('game.show', [
-            'game_id' => $game_id,
-            'auth_player_id' => $auth_player_id,
+            'game' => $game,
+            'board' => $board,
+            'authPlayer' => $authPlayer,
         ]);
     }
 
