@@ -2,10 +2,13 @@
 
 namespace App\Events\Gameplay;
 
-use App\States\PlayerState;
-use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
 use Thunk\Verbs\Event;
+use App\States\GameState;
+use App\States\PlayerState;
+use App\Events\BroadcastEvent;
+use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
 
+#[AppliesToState(GameState::class)]
 #[AppliesToState(PlayerState::class)]
 class PlayerMoved extends Event
 {
@@ -20,5 +23,14 @@ class PlayerMoved extends Event
     public function applyToPlayer(PlayerState $player)
     {
         $player->position = $this->position;
+    }
+
+    public function handle(GameState $game, PlayerState $player)
+    {
+        $broadcastEvent = new BroadcastEvent();
+        $broadcastEvent->setGameState($game);
+        $broadcastEvent->setPlayerState($player);
+        $broadcastEvent->setEvent(self::class);
+        event($broadcastEvent);
     }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Events\Gameplay;
 
+use Thunk\Verbs\Event;
 use App\States\GameState;
 use App\States\PlayerState;
 use InvalidArgumentException;
+use App\Events\BroadcastEvent;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
-use Thunk\Verbs\Event;
 
 #[AppliesToState(GameState::class)]
 #[AppliesToState(PlayerState::class)]
@@ -32,5 +33,14 @@ class RolledDice extends Event
     public function applyToGame(GameState $game)
     {
         $game->last_roll = $this->die;
+    }
+
+    public function handle(GameState $game, PlayerState $player)
+    {
+        $broadcastEvent = new BroadcastEvent();
+        $broadcastEvent->setGameState($game);
+        $broadcastEvent->setPlayerState($player);
+        $broadcastEvent->setEvent(self::class);
+        event($broadcastEvent);
     }
 }

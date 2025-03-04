@@ -2,11 +2,12 @@
 
 namespace App\Events\Setup;
 
+use Thunk\Verbs\Event;
 use App\States\GameState;
 use App\States\PlayerState;
+use App\Events\BroadcastEvent;
 use Illuminate\Support\Facades\Session;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
-use Thunk\Verbs\Event;
 
 #[AppliesToState(GameState::class)]
 #[AppliesToState(PlayerState::class)]
@@ -38,5 +39,14 @@ class PlayerJoinedGame extends Event
         $player->position = 1;
         $player->setup = true;
         $player->name = Session::get('user.name');
+    }
+
+    public function handle(GameState $game, PlayerState $player)
+    {
+        $broadcastEvent = new BroadcastEvent();
+        $broadcastEvent->setGameState($game);
+        $broadcastEvent->setPlayerState($player);
+        $broadcastEvent->setEvent(self::class);
+        event($broadcastEvent);
     }
 }

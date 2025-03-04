@@ -2,10 +2,11 @@
 
 namespace App\Events\Gameplay;
 
+use Thunk\Verbs\Event;
 use App\States\GameState;
 use App\States\PlayerState;
+use App\Events\BroadcastEvent;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
-use Thunk\Verbs\Event;
 
 #[AppliesToState(GameState::class)]
 #[AppliesToState(PlayerState::class)]
@@ -22,5 +23,14 @@ class EndedTurn extends Event
     {
         $game->last_player_id = $this->player_id;
         $game->moveToNextPlayer();
+    }
+
+    public function handle(GameState $game, PlayerState $player)
+    {
+        $broadcastEvent = new BroadcastEvent();
+        $broadcastEvent->setGameState($game);
+        $broadcastEvent->setPlayerState($player);
+        $broadcastEvent->setEvent(self::class);
+        event($broadcastEvent);
     }
 }

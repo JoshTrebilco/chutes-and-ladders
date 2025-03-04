@@ -2,9 +2,10 @@
 
 namespace App\Events\Setup;
 
+use App\Events\BroadcastEvent;
+use Thunk\Verbs\Event;
 use App\States\GameState;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
-use Thunk\Verbs\Event;
 
 #[AppliesToState(GameState::class)]
 class GameStarted extends Event
@@ -23,5 +24,13 @@ class GameStarted extends Event
         $game->started = true;
         $game->started_at = now()->toImmutable();
         $game->player_ids = [];
+    }
+
+    public function handle(GameState $game)
+    {
+        $broadcastEvent = new BroadcastEvent();
+        $broadcastEvent->setGameState($game);
+        $broadcastEvent->setEvent(self::class);
+        event($broadcastEvent);
     }
 }
