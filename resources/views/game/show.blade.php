@@ -13,8 +13,6 @@
     <!-- Game Board -->
     <livewire:game-board :game-id="$game_id" :auth-player-id="$auth_player_id" />
 
-    <div class="mt-6">
-        <h2 class="text-2xl font-bold">Debug</h2>
-        <livewire:debug :game-id="$game_id" :auth-player-id="$auth_player_id" />
-    </div>
+    {{-- Debug --}}
+    <x-debug :game-id="$game_id" :auth-player-id="$auth_player_id" />
 </x-layout>

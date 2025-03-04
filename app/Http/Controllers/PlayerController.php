@@ -139,7 +139,7 @@ class PlayerController extends Controller
             );
         }
 
-        return redirect()->route('games.show', $game_id);
+        // return redirect()->route('games.show', $game_id);
     }
 
     public function startGame(int $game_id)
