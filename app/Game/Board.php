@@ -173,4 +173,16 @@ class Board
     {
         return $this->calculatePathGeometry($chute, true);
     }
+
+    public function getAllSquarePositions(): array
+    {
+        $positions = [];
+
+        // Calculate position for each square (1-100)
+        for ($i = 1; $i <= 100; $i++) {
+            $positions[$i] = $this->getSquarePosition($i);
+        }
+
+        return $positions;
+    }
 }

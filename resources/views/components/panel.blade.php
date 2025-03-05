@@ -152,29 +152,63 @@
         </div>
 
         <!-- Dice Roll Section -->
-        <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl {{ $game->isInProgress() ? '' : 'hidden' }}">
+        <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl {{ $game->isInProgress() ? '' : 'hidden' }}"
+             x-data="{
+                isRolling: false,
+
+                rollDice() {
+                    if (this.isRolling) return; // Prevent double-clicks
+                    this.isRolling = true;
+
+                    // Get die component reference
+                    const dieEl = document.querySelector('.die-component');
+                    if (dieEl && dieEl.__x) {
+                        dieEl.__x.$data.startRoll();
+                    }
+
+                    // Send Axios request instead of form submission
+                    axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
+                        _token: '{{ csrf_token() }}'
+                    })
+                    .then(response => {
+                        console.log('Dice roll successful');
+                        // The WebSocket event will handle updating the die
+                    })
+                    .catch(error => {
+                        console.error('Error rolling dice:', error);
+                        alert('There was an error rolling the dice. Please try again.');
+                    })
+                    .finally(() => {
+                        // Re-enable button after a delay to prevent spamming
+                        setTimeout(() => {
+                            this.isRolling = false;
+                        }, 2000);
+                    });
+                }
+             }">
             @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post" class="flex justify-center">
-                    @csrf
-                    <button type="submit" class="transform transition hover:scale-105">
-                        <div class="flex flex-col items-center">
-                            <div class="mb-2">
-                                <div class="inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
-                                    <x-die :value="$game->last_roll" />
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-blue-300 inline-block animate-[pulse_2s_ease-in-out_infinite]">
-                                    It's your turn
-                                </span>
+                <button type="button"
+                        @click="rollDice()"
+                        x-bind:disabled="isRolling"
+                        x-bind:class="{'opacity-50': isRolling}"
+                        class="transform transition hover:scale-105">
+                    <div class="flex flex-col items-center">
+                        <div class="mb-2">
+                            <div class="inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
+                                <x-die :value="$game->last_roll" class="die-component" />
                             </div>
                         </div>
-                    </button>
-                </form>
+                        <div class="text-center">
+                            <span class="text-blue-300 inline-block animate-[pulse_2s_ease-in-out_infinite]" x-text="isRolling ? 'Rolling...' : 'It\'s your turn'">
+                                It's your turn
+                            </span>
+                        </div>
+                    </div>
+                </button>
             @else
                 <div class="flex flex-col items-center">
                     <div class="mb-2">
-                        <x-die :value="$game->last_roll" />
+                        <x-die :value="$game->last_roll" class="die-component" />
                     </div>
                     <div class="text-center text-blue-300">
                         It's {{ $game->activePlayer()?->name }}'s turn

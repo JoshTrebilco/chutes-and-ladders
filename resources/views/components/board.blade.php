@@ -1,4 +1,6 @@
-<div class="relative w-[600px] h-[600px]">
+<div class="relative w-[600px] h-[600px]"
+     x-data="boardController({{ json_encode($board->getAllSquarePositions()) }})"
+     x-init="initBoard()">
     <div class="grid grid-cols-10 gap-1 w-full h-full bg-slate-900/50 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-slate-800/50">
         @foreach ($board->numbers as $number)
             <div class="aspect-square flex items-center justify-center border border-purple-500/20 rounded-lg
@@ -66,7 +68,11 @@
             @php
                 [$tokenX, $tokenY] = $board->getSquarePosition($player->position);
             @endphp
-            <g class="player-token">
+            <g class="player-token"
+               data-player-id="{{ $player->id }}"
+               data-position="{{ $player->position }}"
+               x-bind:style="getPlayerTransform('{{ $player->id }}', {{ $tokenX }}, {{ $tokenY }})"
+               x-bind:class="{'transition-all duration-1000 ease-in-out': true}">
                 <!-- Token glow effect -->
                 <circle
                     cx="{{ $tokenX }}"
@@ -92,3 +98,45 @@
         @endforeach
     </svg>
 </div>
+
+<script>
+    function boardController(squarePositions) {
+        return {
+            positions: squarePositions,
+            playerPositions: {},
+
+            initBoard() {
+                // Initialize player positions
+                document.querySelectorAll('.player-token').forEach(token => {
+                    const playerId = token.dataset.playerId;
+                    const position = parseInt(token.dataset.position);
+                    this.playerPositions[playerId] = position;
+                });
+
+                // Listen for position updates via WebSocket
+                document.addEventListener('DOMContentLoaded', () => {
+                    window.Echo.channel('test-channel').listen('BroadcastEvent', (data) => {
+                        if (data.playerState && data.event) {
+                            const playerId = data.playerState.id;
+                            const newPosition = data.playerState.position;
+
+                            if (this.playerPositions[playerId] !== newPosition) {
+                                this.playerPositions[playerId] = newPosition;
+                            }
+                        }
+                    });
+                });
+            },
+
+            getPlayerTransform(playerId, defaultX, defaultY) {
+                const position = this.playerPositions[playerId];
+                if (!position || !this.positions[position]) {
+                    return `translate(${defaultX}px, ${defaultY}px)`;
+                }
+
+                const [x, y] = this.positions[position];
+                return `translate(${x}px, ${y}px)`;
+            }
+        };
+    }
+</script>

@@ -33,4 +33,22 @@
 
     {{-- Debug --}}
     <x-debug />
+
+    <script>
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     // Listen for WebSocket events for dice rolls
+        //     const channel = window.Echo.channel('test-channel');
+
+        //     channel.listen('BroadcastEvent', (data) => {
+        //         if (data.event && data.event.includes('RolledDice') && data.gameState) {
+        //             // Find all dice elements and update them
+        //             document.querySelectorAll('div[x-ref="die"]').forEach(die => {
+        //                 if (die.__x) {
+        //                     die.__x.$data.stopRoll(data.gameState.last_roll);
+        //                 }
+        //             });
+        //         }
+        //     });
+        // });
+    </script>
 </x-layout>
