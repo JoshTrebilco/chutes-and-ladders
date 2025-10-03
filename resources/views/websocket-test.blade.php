@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebSocket Test</title>
+    <title>WebSocket Test (Reverb)</title>
     @vite(['resources/js/app.js'])
     <style>
         .connected { color: green; }
@@ -15,34 +15,42 @@
     <div id="messages"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const status = document.getElementById('status');
-            const messages = document.getElementById('messages');
+        document.addEventListener("DOMContentLoaded", function () {
+            const status = document.getElementById("status");
+            const messages = document.getElementById("messages");
 
             function log(message) {
                 console.log(message);
-                const msg = document.createElement('div');
+                const msg = document.createElement("div");
                 msg.textContent = message;
                 messages.appendChild(msg);
             }
 
-            window.Echo.connector.pusher.connection.bind('connected', () => {
-                status.textContent = 'Connected';
-                status.className = 'connected';
-                log('Connected to WebSocket server');
+            const connection = window.Echo.connector.pusher.connection;
+
+            connection.bind("connected", () => {
+                status.textContent = "Connected";
+                status.className = "connected";
+                log("✅ Connected to Reverb server");
             });
 
-            window.Echo.connector.pusher.connection.bind('disconnected', () => {
-                status.textContent = 'Disconnected';
-                status.className = 'disconnected';
-                log('Disconnected from WebSocket server');
+            connection.bind("disconnected", () => {
+                status.textContent = "Disconnected";
+                status.className = "disconnected";
+                log("❌ Disconnected from Reverb server");
             });
 
-            const channel = window.Echo.channel('test-channel');
-            log('Subscribed to test-channel');
+            connection.bind("error", (error) => {
+                log("⚠️ Connection error: " + JSON.stringify(error));
+            });
 
-            channel.listen('BroadcastEvent', (data) => {
-                log(`Event received: ${JSON.stringify(data)}`);
+
+            // Subscribe to a test channel
+            const channel = window.Echo.channel("test");
+            log("📡 Subscribed to channel: test");
+
+            channel.listen("TestMessage", (data) => {
+                log("🎉 Event received: " + JSON.stringify(data));
             });
         });
     </script>
