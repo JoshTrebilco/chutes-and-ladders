@@ -76,11 +76,8 @@
                         <button id="clear-log" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Clear Log
                         </button>
-                        <button id="expand-all" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
+                        <button id="toggle-all" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Expand All
-                        </button>
-                        <button id="collapse-all" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
-                            Collapse All
                         </button>
                     </div>
                 </div>
@@ -97,8 +94,7 @@
             const lastEventTime = document.getElementById('last-event-time');
             const playerCount = document.getElementById('player-count');
             const clearLogBtn = document.getElementById('clear-log');
-            const expandAllBtn = document.getElementById('expand-all');
-            const collapseAllBtn = document.getElementById('collapse-all');
+            const toggleAllBtn = document.getElementById('toggle-all');
 
             let eventCounter = 0;
             let uniquePlayers = new Set();
@@ -108,26 +104,59 @@
                 messages.innerHTML = '';
                 eventCounter = 0;
                 uniquePlayers.clear();
+                allExpanded = false;
+                toggleAllBtn.textContent = 'Expand All';
                 updateStats();
             });
 
-            expandAllBtn.addEventListener('click', function() {
-                const contents = messages.querySelectorAll('.event-content');
-                const icons = messages.querySelectorAll('.toggle-icon');
-                contents.forEach(content => content.classList.remove('hidden'));
-                icons.forEach(icon => icon.textContent = '▼');
-            });
+            let allExpanded = false;
 
-            collapseAllBtn.addEventListener('click', function() {
+            toggleAllBtn.addEventListener('click', function() {
                 const contents = messages.querySelectorAll('.event-content');
                 const icons = messages.querySelectorAll('.toggle-icon');
-                contents.forEach(content => content.classList.add('hidden'));
-                icons.forEach(icon => icon.textContent = '▶');
+                
+                if (allExpanded) {
+                    // Collapse all
+                    contents.forEach(content => content.classList.add('hidden'));
+                    icons.forEach(icon => icon.textContent = '▶');
+                    toggleAllBtn.textContent = 'Expand All';
+                    allExpanded = false;
+                } else {
+                    // Expand all
+                    contents.forEach(content => content.classList.remove('hidden'));
+                    icons.forEach(icon => icon.textContent = '▼');
+                    toggleAllBtn.textContent = 'Collapse All';
+                    allExpanded = true;
+                }
             });
 
             function updateStats() {
                 eventCount.textContent = eventCounter;
                 playerCount.textContent = uniquePlayers.size;
+            }
+
+            function updateGlobalToggleState() {
+                const contents = messages.querySelectorAll('.event-content');
+                const visibleCount = Array.from(contents).filter(content => !content.classList.contains('hidden')).length;
+                const totalCount = contents.length;
+                
+                if (totalCount === 0) {
+                    // No items, reset to default state
+                    allExpanded = false;
+                    toggleAllBtn.textContent = 'Expand All';
+                } else if (visibleCount === totalCount) {
+                    // All items are expanded
+                    allExpanded = true;
+                    toggleAllBtn.textContent = 'Collapse All';
+                } else if (visibleCount === 0) {
+                    // All items are collapsed
+                    allExpanded = false;
+                    toggleAllBtn.textContent = 'Expand All';
+                } else {
+                    // Mixed state - show expand all since not all are expanded
+                    allExpanded = false;
+                    toggleAllBtn.textContent = 'Expand All';
+                }
             }
 
             function log(message) {
@@ -233,6 +262,9 @@
                         content.classList.add('hidden');
                         toggleIcon.textContent = '▶';
                     }
+                    
+                    // Update global state based on individual toggles
+                    updateGlobalToggleState();
                 });
 
                 msg.appendChild(header);
