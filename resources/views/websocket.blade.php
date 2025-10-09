@@ -73,6 +73,22 @@
                         <h2 class="text-lg font-semibold text-blue-300">Event Log</h2>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                placeholder="Search events, players, or content..." 
+                                class="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 pr-10 text-sm text-blue-200 placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 w-80"
+                            />
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg class="w-4 h-4 text-blue-200/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <button id="clear-search" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200 hidden">
+                            Clear Search
+                        </button>
                         <button id="clear-log" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Clear Log
                         </button>
@@ -95,18 +111,42 @@
             const playerCount = document.getElementById('player-count');
             const clearLogBtn = document.getElementById('clear-log');
             const toggleAllBtn = document.getElementById('toggle-all');
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
 
             let eventCounter = 0;
             let uniquePlayers = new Set();
+            let allMessages = []; // Store all messages for filtering
 
             // Button event listeners
             clearLogBtn.addEventListener('click', function() {
                 messages.innerHTML = '';
                 eventCounter = 0;
                 uniquePlayers.clear();
+                allMessages = [];
                 allExpanded = false;
                 toggleAllBtn.textContent = 'Expand All';
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
                 updateStats();
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                if (searchTerm) {
+                    clearSearchBtn.classList.remove('hidden');
+                    filterMessages(searchTerm);
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                    showAllMessages();
+                }
+            });
+
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                this.classList.add('hidden');
+                showAllMessages();
             });
 
             let allExpanded = false;
@@ -167,6 +207,76 @@
                     'yellow': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
                 };
                 return colorMap[color] || 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+            }
+
+            function filterMessages(searchTerm) {
+                messages.innerHTML = '';
+                const filteredMessages = allMessages.filter(messageData => {
+                    const searchableText = messageData.searchableText.toLowerCase();
+                    return searchableText.includes(searchTerm);
+                });
+                
+                filteredMessages.forEach(messageData => {
+                    // Remove any existing highlights first
+                    removeHighlights(messageData.element);
+                    // Apply new highlights
+                    applyHighlights(messageData.element, searchTerm);
+                    messages.appendChild(messageData.element);
+                });
+            }
+
+            function showAllMessages() {
+                messages.innerHTML = '';
+                allMessages.forEach(messageData => {
+                    // Remove highlights when showing all messages
+                    removeHighlights(messageData.element);
+                    messages.appendChild(messageData.element);
+                });
+            }
+
+            function highlightSearchTerm(text, searchTerm) {
+                if (!searchTerm) return text;
+                const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                return text.replace(regex, '<mark class="bg-blue-300/60 text-blue-100 rounded font-medium">$1</mark>');
+            }
+
+            function applyHighlights(element, searchTerm) {
+                if (!searchTerm) return;
+                
+                // Highlight text in all text nodes
+                const walker = document.createTreeWalker(
+                    element,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+                
+                textNodes.forEach(textNode => {
+                    const parent = textNode.parentNode;
+                    if (parent.tagName !== 'MARK') { // Don't highlight inside existing marks
+                        const highlightedHTML = highlightSearchTerm(textNode.textContent, searchTerm);
+                        if (highlightedHTML !== textNode.textContent) {
+                            const wrapper = document.createElement('span');
+                            wrapper.innerHTML = highlightedHTML;
+                            parent.replaceChild(wrapper, textNode);
+                        }
+                    }
+                });
+            }
+
+            function removeHighlights(element) {
+                const marks = element.querySelectorAll('mark');
+                marks.forEach(mark => {
+                    const parent = mark.parentNode;
+                    parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                    parent.normalize(); // Merge adjacent text nodes
+                });
             }
 
             function log(message) {
@@ -280,7 +390,30 @@
 
                 msg.appendChild(header);
                 msg.appendChild(content);
-                messages.appendChild(msg);
+                
+                // Create searchable text for filtering
+                const searchableText = [
+                    eventInfo,
+                    playerName || '',
+                    typeof message === 'object' ? JSON.stringify(message) : message.toString()
+                ].join(' ').toLowerCase();
+                
+                // Store message data for filtering
+                const messageData = {
+                    element: msg,
+                    searchableText: searchableText
+                };
+                allMessages.push(messageData);
+                
+                // Check if we should show this message based on current search
+                const currentSearch = searchInput.value.toLowerCase().trim();
+                if (!currentSearch || searchableText.includes(currentSearch)) {
+                    // Apply highlights if there's an active search
+                    if (currentSearch) {
+                        applyHighlights(msg, currentSearch);
+                    }
+                    messages.appendChild(msg);
+                }
 
                 // Update stats
                 updateStats();
