@@ -128,6 +128,7 @@
                 toggleAllBtn.textContent = 'Expand All';
                 searchInput.value = '';
                 clearSearchBtn.classList.add('hidden');
+                lastEventTime.textContent = 'Never';
                 updateStats();
             });
 
