@@ -6,51 +6,54 @@
     <title>WebSocket Debug Console</title>
     @vite(['resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=play:400,500,600&display=swap" rel="stylesheet" />
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         'mono': ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
+                        'sans': ['Play', 'ui-sans-serif', 'system-ui', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+<body class="font-sans antialiased bg-slate-950 min-h-screen bg-gradient-to-b from-slate-950 to-purple-950">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-slate-200">
+    <header class="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800/50 shadow-xl">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-sm">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900">WebSocket Debug Console</h1>
-                        <p class="text-sm text-slate-500">Real-time event monitoring with Laravel Reverb</p>
+                        <h1 class="text-xl font-bold text-blue-300">WebSocket Debug Console</h1>
+                        <p class="text-sm text-blue-200/80">Real-time event monitoring with Laravel Reverb</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-8">
                     <!-- Stats in header -->
                     <div class="flex items-center space-x-6">
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Events</div>
-                            <div class="text-xl font-bold text-slate-900" id="event-count">0</div>
+                            <div class="text-xs text-blue-200/60 uppercase tracking-wide font-medium mb-1">Events</div>
+                            <div class="text-xl font-bold text-blue-300" id="event-count">0</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Players</div>
-                            <div class="text-xl font-bold text-slate-900" id="player-count">0</div>
+                            <div class="text-xs text-blue-200/60 uppercase tracking-wide font-medium mb-1">Players</div>
+                            <div class="text-xl font-bold text-blue-300" id="player-count">0</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Last Event</div>
-                            <div class="text-xl font-semibold text-slate-900" id="last-event-time">Never</div>
+                            <div class="text-xs text-blue-200/60 uppercase tracking-wide font-medium mb-1">Last Event</div>
+                            <div class="text-xl font-semibold text-blue-300" id="last-event-time">Never</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Status</div>
+                            <div class="text-xs text-blue-200/60 uppercase tracking-wide font-medium mb-1">Status</div>
                             <div id="status" class="disconnected text-sm font-semibold">Disconnected</div>
                         </div>
                     </div>
@@ -62,27 +65,27 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-6">
         <!-- Message Log -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 h-[calc(100vh-8rem)] flex flex-col">
-            <div class="px-6 py-5 border-b border-slate-200 flex-shrink-0">
+        <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-800/50 h-[calc(100vh-8rem)] flex flex-col">
+            <div class="px-6 py-5 border-b border-slate-800/50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <h2 class="text-lg font-semibold text-slate-900">Event Log</h2>
+                        <div class="w-2 h-2 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></div>
+                        <h2 class="text-lg font-semibold text-blue-300">Event Log</h2>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button id="clear-log" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
+                        <button id="clear-log" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Clear Log
                         </button>
-                        <button id="expand-all" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
+                        <button id="expand-all" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Expand All
                         </button>
-                        <button id="collapse-all" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
+                        <button id="collapse-all" class="text-sm text-blue-200 hover:text-blue-300 hover:bg-slate-800/50 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Collapse All
                         </button>
                     </div>
                 </div>
             </div>
-            <div id="messages" class="flex-1 overflow-y-auto bg-slate-50/30"></div>
+            <div id="messages" class="flex-1 overflow-y-auto bg-slate-900/30"></div>
         </div>
     </main>
 
@@ -132,15 +135,15 @@
                 eventCounter++;
                 
                 const msg = document.createElement('div');
-                msg.className = 'border-b border-slate-200 last:border-b-0 hover:bg-slate-50/50 transition-colors';
+                msg.className = 'border-b border-slate-800/50 last:border-b-0 hover:bg-slate-800/30 transition-colors';
 
                 // Create header with timestamp, event info, and toggle button
                 const header = document.createElement('div');
-                header.className = 'px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-slate-100/50 transition-all duration-200 group';
+                header.className = 'px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-slate-800/50 transition-all duration-200 group';
                 
                 const timestamp = new Date().toLocaleTimeString();
                 const timestampEl = document.createElement('span');
-                timestampEl.className = 'text-xs text-slate-500 font-mono mr-5 bg-slate-100 px-2 py-1 rounded-md';
+                timestampEl.className = 'text-xs text-blue-200/60 font-mono mr-5 bg-slate-800/50 px-2 py-1 rounded-md border border-slate-700/50';
                 timestampEl.textContent = timestamp;
                 
                 // Extract event name and player info
@@ -175,12 +178,12 @@
                 eventEl.className = 'flex-1 flex items-center space-x-4';
                 
                 const eventName = document.createElement('span');
-                eventName.className = 'text-sm font-semibold text-slate-900';
+                eventName.className = 'text-sm font-semibold text-blue-300';
                 eventName.textContent = eventInfo;
                 
                 if (playerName) {
                     const playerEl = document.createElement('span');
-                    playerEl.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200';
+                    playerEl.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border border-purple-500/30';
                     playerEl.textContent = playerName;
                     eventEl.appendChild(eventName);
                     eventEl.appendChild(playerEl);
@@ -189,7 +192,7 @@
                 }
                 
                 const toggleIcon = document.createElement('span');
-                toggleIcon.className = 'toggle-icon text-slate-400 text-sm group-hover:text-slate-600 transition-all duration-200 bg-slate-100 group-hover:bg-slate-200 w-6 h-6 rounded-full flex items-center justify-center';
+                toggleIcon.className = 'toggle-icon text-blue-200/60 text-sm group-hover:text-blue-300 transition-all duration-200 bg-slate-800/50 group-hover:bg-slate-700/50 w-6 h-6 rounded-full flex items-center justify-center border border-slate-700/50';
                 toggleIcon.textContent = '▶';
                 
                 header.appendChild(timestampEl);
@@ -198,7 +201,7 @@
                 
                 // Create content area (collapsed by default)
                 const content = document.createElement('div');
-                content.className = 'event-content px-6 pb-6 bg-slate-50/50 hidden';
+                content.className = 'event-content px-6 pb-6 bg-slate-800/30 hidden';
                 
                 // Handle different types of messages
                 if (typeof message === 'object' && message !== null) {
@@ -212,10 +215,12 @@
                     } catch (e) {
                         // If JSON parsing fails, display the original message
                         content.textContent = message;
+                        content.className = 'event-content px-6 pb-6 bg-slate-800/30 text-blue-200 text-sm font-mono hidden';
                     }
                 } else {
                     // For normal text messages
                     content.textContent = message;
+                    content.className = 'event-content px-6 pb-6 bg-slate-800/30 text-blue-200 text-sm font-mono hidden';
                 }
 
                 // Add toggle functionality
@@ -246,12 +251,12 @@
             function formatJsonData(json, container) {
                 // Create container for formatted JSON
                 const jsonContainer = document.createElement('div');
-                jsonContainer.className = 'mt-1';
+                jsonContainer.className = 'mt-1 text-sm font-mono';
 
                 // If it's an event, display the event name prominently
                 if (json.event) {
                     const eventName = document.createElement('div');
-                    eventName.className = 'font-bold text-blue-600 mb-1';
+                    eventName.className = 'font-bold text-blue-400 mb-1';
                     eventName.textContent = 'Event: ' + json.event.split('\\').pop();
                     jsonContainer.appendChild(eventName);
                 }
@@ -268,7 +273,7 @@
                             itemRow.className = 'flex items-start';
 
                             const keyEl = document.createElement('span');
-                            keyEl.className = 'text-purple-600 mr-2';
+                            keyEl.className = 'text-purple-400 mr-2';
                             keyEl.textContent = `[${i}]:`;
                             itemRow.appendChild(keyEl);
 
@@ -296,7 +301,7 @@
                             itemRow.className = 'flex items-start';
 
                             const keyEl = document.createElement('span');
-                            keyEl.className = 'text-blue-600 mr-2 font-medium';
+                            keyEl.className = 'text-blue-400 mr-2 font-medium';
                             keyEl.textContent = `${key}:`;
                             itemRow.appendChild(keyEl);
 
@@ -324,16 +329,16 @@
                     const valueEl = document.createElement('span');
 
                     if (typeof value === 'string') {
-                        valueEl.className = 'text-green-600';
+                        valueEl.className = 'text-green-400';
                         valueEl.textContent = `"${value}"`;
                     } else if (typeof value === 'number') {
-                        valueEl.className = 'text-orange-600';
+                        valueEl.className = 'text-orange-400';
                         valueEl.textContent = value;
                     } else if (typeof value === 'boolean') {
-                        valueEl.className = 'text-purple-600 font-medium';
+                        valueEl.className = 'text-purple-400 font-medium';
                         valueEl.textContent = value;
                     } else if (value === null) {
-                        valueEl.className = 'text-gray-500 italic';
+                        valueEl.className = 'text-blue-200/60 italic';
                         valueEl.textContent = 'null';
                     }
 
@@ -348,13 +353,13 @@
 
             connection.bind('connected', () => {
                 status.textContent = 'Connected';
-                status.className = 'connected text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full';
+                status.className = 'connected text-sm font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/30';
                 log('✅ Connected to Reverb server');
             });
 
             connection.bind('disconnected', () => {
                 status.textContent = 'Disconnected';
-                status.className = 'disconnected text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full';
+                status.className = 'disconnected text-sm font-semibold text-red-400 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/30';
                 log('❌ Disconnected from Reverb server');
             });
 
