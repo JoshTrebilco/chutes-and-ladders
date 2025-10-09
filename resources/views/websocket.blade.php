@@ -159,6 +159,16 @@
                 }
             }
 
+            function getPlayerColorClasses(color) {
+                const colorMap = {
+                    'blue': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+                    'green': 'bg-green-500/20 text-green-300 border-green-500/30',
+                    'red': 'bg-red-500/20 text-red-300 border-red-500/30',
+                    'yellow': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+                };
+                return colorMap[color] || 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+            }
+
             function log(message) {
                 console.log(message);
                 eventCounter++;
@@ -178,12 +188,14 @@
                 // Extract event name and player info
                 let eventInfo = '';
                 let playerName = '';
+                let playerColor = '';
                 if (typeof message === 'object' && message !== null) {
                     if (message.event) {
                         eventInfo = message.event.split('\\').pop();
                     }
                     if (message.playerState && message.playerState.name) {
                         playerName = message.playerState.name;
+                        playerColor = message.playerState.color || 'purple';
                         uniquePlayers.add(playerName);
                     }
                 } else if (typeof message === 'string' && message.startsWith('{')) {
@@ -194,6 +206,7 @@
                         }
                         if (json.playerState && json.playerState.name) {
                             playerName = json.playerState.name;
+                            playerColor = json.playerState.color || 'purple';
                             uniquePlayers.add(playerName);
                         }
                     } catch (e) {
@@ -212,7 +225,7 @@
                 
                 if (playerName) {
                     const playerEl = document.createElement('span');
-                    playerEl.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border border-purple-500/30';
+                    playerEl.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPlayerColorClasses(playerColor)}`;
                     playerEl.textContent = playerName;
                     eventEl.appendChild(eventName);
                     eventEl.appendChild(playerEl);
