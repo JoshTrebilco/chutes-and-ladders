@@ -1,64 +1,155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>WebSocket Test (Reverb)</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Debug Console</title>
     @vite(['resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100">
-    <!-- Main Debug Interface -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">WebSocket Debug Console</h1>
-                <div class="text-sm text-gray-600">
-                    <p>Real-time WebSocket debugging with Laravel Reverb</p>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">WebSocket Debug Console</h1>
+                        <p class="text-sm text-slate-500">Real-time event monitoring with Laravel Reverb</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <!-- Stats in header -->
+                    <div class="flex items-center space-x-4">
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Events</div>
+                            <div class="text-lg font-bold text-slate-900" id="event-count">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Players</div>
+                            <div class="text-lg font-bold text-slate-900" id="player-count">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Last Event</div>
+                            <div class="text-sm font-medium text-slate-900" id="last-event-time">Never</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Status</div>
+                        <div id="status" class="disconnected text-sm font-medium">Disconnected</div>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Connection Status -->
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold mb-4">Connection Status</h2>
-                <div id="status" class="disconnected p-3 rounded-lg border">Disconnected</div>
-            </div>
-            
-            <hr class="my-6">
-            
-            <!-- Message Log -->
-            <div class="mb-4">
-                <h2 class="text-xl font-semibold mb-4">Message Log</h2>
-                <div id="messages" class="bg-gray-50 rounded-lg p-4 h-96 overflow-y-auto border"></div>
-            </div>
         </div>
-    </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Message Log -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 h-[calc(100vh-8rem)] flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-slate-900">Event Log</h2>
+                    <div class="flex items-center space-x-2">
+                        <button id="clear-log" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                            Clear Log
+                        </button>
+                        <button id="expand-all" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                            Expand All
+                        </button>
+                        <button id="collapse-all" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                            Collapse All
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="messages" class="flex-1 overflow-y-auto bg-slate-50/50"></div>
+        </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const status = document.getElementById('status');
             const messages = document.getElementById('messages');
+            const eventCount = document.getElementById('event-count');
+            const lastEventTime = document.getElementById('last-event-time');
+            const playerCount = document.getElementById('player-count');
+            const clearLogBtn = document.getElementById('clear-log');
+            const expandAllBtn = document.getElementById('expand-all');
+            const collapseAllBtn = document.getElementById('collapse-all');
+
+            let eventCounter = 0;
+            let uniquePlayers = new Set();
+
+            // Button event listeners
+            clearLogBtn.addEventListener('click', function() {
+                messages.innerHTML = '';
+                eventCounter = 0;
+                uniquePlayers.clear();
+                updateStats();
+            });
+
+            expandAllBtn.addEventListener('click', function() {
+                const contents = messages.querySelectorAll('.event-content');
+                const icons = messages.querySelectorAll('.toggle-icon');
+                contents.forEach(content => content.classList.remove('hidden'));
+                icons.forEach(icon => icon.textContent = '▼');
+            });
+
+            collapseAllBtn.addEventListener('click', function() {
+                const contents = messages.querySelectorAll('.event-content');
+                const icons = messages.querySelectorAll('.toggle-icon');
+                contents.forEach(content => content.classList.add('hidden'));
+                icons.forEach(icon => icon.textContent = '▶');
+            });
+
+            function updateStats() {
+                eventCount.textContent = eventCounter;
+                playerCount.textContent = uniquePlayers.size;
+            }
 
             function log(message) {
                 console.log(message);
+                eventCounter++;
+                
                 const msg = document.createElement('div');
-                msg.className = 'mb-2 border border-gray-200 rounded-lg overflow-hidden';
+                msg.className = 'border-b border-slate-200 last:border-b-0';
 
                 // Create header with timestamp, event info, and toggle button
                 const header = document.createElement('div');
-                header.className = 'bg-gray-100 p-2 flex justify-between items-center cursor-pointer hover:bg-gray-200';
+                header.className = 'px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors group';
                 
                 const timestamp = new Date().toLocaleTimeString();
                 const timestampEl = document.createElement('span');
-                timestampEl.className = 'text-xs text-gray-500 font-mono mr-3';
+                timestampEl.className = 'text-xs text-slate-500 font-mono mr-4';
                 timestampEl.textContent = timestamp;
                 
                 // Extract event name and player info
                 let eventInfo = '';
+                let playerName = '';
                 if (typeof message === 'object' && message !== null) {
                     if (message.event) {
                         eventInfo = message.event.split('\\').pop();
                     }
                     if (message.playerState && message.playerState.name) {
-                        eventInfo += eventInfo ? ` - ${message.playerState.name}` : message.playerState.name;
+                        playerName = message.playerState.name;
+                        uniquePlayers.add(playerName);
                     }
                 } else if (typeof message === 'string' && message.startsWith('{')) {
                     try {
@@ -67,22 +158,35 @@
                             eventInfo = json.event.split('\\').pop();
                         }
                         if (json.playerState && json.playerState.name) {
-                            eventInfo += eventInfo ? ` - ${json.playerState.name}` : json.playerState.name;
+                            playerName = json.playerState.name;
+                            uniquePlayers.add(playerName);
                         }
                     } catch (e) {
-                        // If JSON parsing fails, just show the message type
                         eventInfo = 'Text Message';
                     }
                 } else {
                     eventInfo = 'Text Message';
                 }
                 
-                const eventEl = document.createElement('span');
-                eventEl.className = 'text-sm font-medium text-gray-700 flex-1';
-                eventEl.textContent = eventInfo;
+                const eventEl = document.createElement('div');
+                eventEl.className = 'flex-1 flex items-center space-x-3';
+                
+                const eventName = document.createElement('span');
+                eventName.className = 'text-sm font-semibold text-slate-900';
+                eventName.textContent = eventInfo;
+                
+                if (playerName) {
+                    const playerEl = document.createElement('span');
+                    playerEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+                    playerEl.textContent = playerName;
+                    eventEl.appendChild(eventName);
+                    eventEl.appendChild(playerEl);
+                } else {
+                    eventEl.appendChild(eventName);
+                }
                 
                 const toggleIcon = document.createElement('span');
-                toggleIcon.className = 'text-gray-500 text-sm ml-2';
+                toggleIcon.className = 'toggle-icon text-slate-400 text-sm group-hover:text-slate-600 transition-colors';
                 toggleIcon.textContent = '▶';
                 
                 header.appendChild(timestampEl);
@@ -91,7 +195,7 @@
                 
                 // Create content area (collapsed by default)
                 const content = document.createElement('div');
-                content.className = 'p-3 bg-white hidden';
+                content.className = 'event-content px-6 pb-4 bg-slate-50/30 hidden';
                 
                 // Handle different types of messages
                 if (typeof message === 'object' && message !== null) {
@@ -126,6 +230,10 @@
                 msg.appendChild(header);
                 msg.appendChild(content);
                 messages.appendChild(msg);
+
+                // Update stats
+                updateStats();
+                lastEventTime.textContent = new Date().toLocaleTimeString();
 
                 // Auto-scroll to bottom
                 messages.scrollTop = messages.scrollHeight;
@@ -237,13 +345,13 @@
 
             connection.bind('connected', () => {
                 status.textContent = 'Connected';
-                status.className = 'connected p-2 mb-2 rounded bg-green-100 text-green-800';
+                status.className = 'connected text-sm font-medium text-green-600';
                 log('✅ Connected to Reverb server');
             });
 
             connection.bind('disconnected', () => {
                 status.textContent = 'Disconnected';
-                status.className = 'disconnected p-2 mb-2 rounded bg-red-100 text-red-800';
+                status.className = 'disconnected text-sm font-medium text-red-600';
                 log('❌ Disconnected from Reverb server');
             });
 
