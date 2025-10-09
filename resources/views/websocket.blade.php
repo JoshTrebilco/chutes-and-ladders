@@ -219,19 +219,17 @@
                 const eventEl = document.createElement('div');
                 eventEl.className = 'flex-1 flex items-center space-x-4';
                 
-                const eventName = document.createElement('span');
-                eventName.className = 'text-sm font-semibold text-blue-300';
-                eventName.textContent = eventInfo;
-                
                 if (playerName) {
                     const playerEl = document.createElement('span');
                     playerEl.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPlayerColorClasses(playerColor)}`;
                     playerEl.textContent = playerName;
-                    eventEl.appendChild(eventName);
                     eventEl.appendChild(playerEl);
-                } else {
-                    eventEl.appendChild(eventName);
                 }
+                
+                const eventName = document.createElement('span');
+                eventName.className = 'text-sm font-semibold text-blue-300';
+                eventName.textContent = eventInfo;
+                eventEl.appendChild(eventName);
                 
                 const toggleIcon = document.createElement('span');
                 toggleIcon.className = 'toggle-icon text-blue-200/60 text-sm group-hover:text-blue-300 transition-all duration-200 bg-slate-800/50 group-hover:bg-slate-700/50 w-6 h-6 rounded-full flex items-center justify-center border border-slate-700/50';
