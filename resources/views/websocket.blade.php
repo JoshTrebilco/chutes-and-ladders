@@ -21,11 +21,11 @@
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-sm">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
@@ -34,25 +34,25 @@
                         <p class="text-sm text-slate-500">Real-time event monitoring with Laravel Reverb</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-8">
                     <!-- Stats in header -->
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-6">
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Events</div>
-                            <div class="text-lg font-bold text-slate-900" id="event-count">0</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Events</div>
+                            <div class="text-xl font-bold text-slate-900" id="event-count">0</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Players</div>
-                            <div class="text-lg font-bold text-slate-900" id="player-count">0</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Players</div>
+                            <div class="text-xl font-bold text-slate-900" id="player-count">0</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Last Event</div>
-                            <div class="text-sm font-medium text-slate-900" id="last-event-time">Never</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Last Event</div>
+                            <div class="text-xl font-semibold text-slate-900" id="last-event-time">Never</div>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xs text-slate-500 uppercase tracking-wide font-medium">Status</div>
-                        <div id="status" class="disconnected text-sm font-medium">Disconnected</div>
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Status</div>
+                            <div id="status" class="disconnected text-sm font-semibold">Disconnected</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,26 +60,29 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main class="max-w-7xl mx-auto px-6 py-6">
         <!-- Message Log -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 h-[calc(100vh-8rem)] flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 flex-shrink-0">
+            <div class="px-6 py-5 border-b border-slate-200 flex-shrink-0">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-slate-900">Event Log</h2>
-                    <div class="flex items-center space-x-2">
-                        <button id="clear-log" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <h2 class="text-lg font-semibold text-slate-900">Event Log</h2>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button id="clear-log" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Clear Log
                         </button>
-                        <button id="expand-all" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                        <button id="expand-all" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Expand All
                         </button>
-                        <button id="collapse-all" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">
+                        <button id="collapse-all" class="text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium transition-all duration-200">
                             Collapse All
                         </button>
                     </div>
                 </div>
             </div>
-            <div id="messages" class="flex-1 overflow-y-auto bg-slate-50/50"></div>
+            <div id="messages" class="flex-1 overflow-y-auto bg-slate-50/30"></div>
         </div>
     </main>
 
@@ -129,15 +132,15 @@
                 eventCounter++;
                 
                 const msg = document.createElement('div');
-                msg.className = 'border-b border-slate-200 last:border-b-0';
+                msg.className = 'border-b border-slate-200 last:border-b-0 hover:bg-slate-50/50 transition-colors';
 
                 // Create header with timestamp, event info, and toggle button
                 const header = document.createElement('div');
-                header.className = 'px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors group';
+                header.className = 'px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-slate-100/50 transition-all duration-200 group';
                 
                 const timestamp = new Date().toLocaleTimeString();
                 const timestampEl = document.createElement('span');
-                timestampEl.className = 'text-xs text-slate-500 font-mono mr-4';
+                timestampEl.className = 'text-xs text-slate-500 font-mono mr-5 bg-slate-100 px-2 py-1 rounded-md';
                 timestampEl.textContent = timestamp;
                 
                 // Extract event name and player info
@@ -169,7 +172,7 @@
                 }
                 
                 const eventEl = document.createElement('div');
-                eventEl.className = 'flex-1 flex items-center space-x-3';
+                eventEl.className = 'flex-1 flex items-center space-x-4';
                 
                 const eventName = document.createElement('span');
                 eventName.className = 'text-sm font-semibold text-slate-900';
@@ -177,7 +180,7 @@
                 
                 if (playerName) {
                     const playerEl = document.createElement('span');
-                    playerEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+                    playerEl.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200';
                     playerEl.textContent = playerName;
                     eventEl.appendChild(eventName);
                     eventEl.appendChild(playerEl);
@@ -186,7 +189,7 @@
                 }
                 
                 const toggleIcon = document.createElement('span');
-                toggleIcon.className = 'toggle-icon text-slate-400 text-sm group-hover:text-slate-600 transition-colors';
+                toggleIcon.className = 'toggle-icon text-slate-400 text-sm group-hover:text-slate-600 transition-all duration-200 bg-slate-100 group-hover:bg-slate-200 w-6 h-6 rounded-full flex items-center justify-center';
                 toggleIcon.textContent = '▶';
                 
                 header.appendChild(timestampEl);
@@ -195,7 +198,7 @@
                 
                 // Create content area (collapsed by default)
                 const content = document.createElement('div');
-                content.className = 'event-content px-6 pb-4 bg-slate-50/30 hidden';
+                content.className = 'event-content px-6 pb-6 bg-slate-50/50 hidden';
                 
                 // Handle different types of messages
                 if (typeof message === 'object' && message !== null) {
@@ -345,13 +348,13 @@
 
             connection.bind('connected', () => {
                 status.textContent = 'Connected';
-                status.className = 'connected text-sm font-medium text-green-600';
+                status.className = 'connected text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full';
                 log('✅ Connected to Reverb server');
             });
 
             connection.bind('disconnected', () => {
                 status.textContent = 'Disconnected';
-                status.className = 'disconnected text-sm font-medium text-red-600';
+                status.className = 'disconnected text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full';
                 log('❌ Disconnected from Reverb server');
             });
 
