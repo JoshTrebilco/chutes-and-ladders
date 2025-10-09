@@ -17,9 +17,9 @@ Route::post('/games/{game_id}/players/{player_id}/roll-dice', [PlayerController:
 Route::post('/games/{game_id}/start-game', [PlayerController::class, 'startGame'])->name('players.startGame');
 
 // Add this new route
-Route::get('/websocket-test', function () {
-    return view('websocket-test');
-})->name('websocket.test');
+Route::get('/websocket', function () {
+    return view('websocket');
+})->name('websocket');
 
 Route::get('/test', function () {
     $event = new BroadcastEvent("Hello");
