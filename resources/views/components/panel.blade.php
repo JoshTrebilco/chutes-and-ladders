@@ -153,8 +153,8 @@
 
         <!-- Dice Roll Section -->
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl {{ $game->isInProgress() ? '' : 'hidden' }}">
-            @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                <div class="flex justify-center">
+            <div class="flex justify-center">
+                @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
                     <button 
                         type="button" 
                         class="transform transition hover:scale-105"
@@ -163,7 +163,9 @@
                         <div class="flex flex-col items-center">
                             <div class="mb-2">
                                 <div class="inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
-                                    <x-die :value="$game->last_roll" />
+                                    <div id="die-container">
+                                        <!-- Die will be rendered by JavaScript -->
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-center">
@@ -173,32 +175,78 @@
                             </div>
                         </div>
                     </button>
-                </div>
-            @else
-                <div class="flex flex-col items-center">
-                    <div class="mb-2">
-                        <x-die :value="$game->last_roll" />
+                @else
+                    <div class="flex flex-col items-center">
+                        <div class="mb-2">
+                            <div id="die-container">
+                                <!-- Die will be rendered by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="text-center text-blue-300">
+                            It's {{ $game->activePlayer()?->name }}'s turn
+                        </div>
                     </div>
-                    <div class="text-center text-blue-300">
-                        It's {{ $game->activePlayer()?->name }}'s turn
-                    </div>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
 
 <script>
+    // Die animation logic from die-debug.blade.php
+    const dots = {
+        1: '<span class="col-start-2 col-span-1 row-start-2 row-span-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+        2: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+        3: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+        4: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+        5: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+        6: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>'
+    };
+
+    const createDie = v => `<div class="w-24 h-24 relative transform transition"><div class="absolute inset-0 bg-blue-500/20 rounded-2xl blur-lg"></div><div class="relative w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 shadow-xl grid grid-cols-3 gap-2 p-3">${dots[v]||''}</div></div>`;
+
+    const rollAnimation = (containerId, finalValue) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        let i = 0;
+        const timer = setInterval(() => {
+            container.innerHTML = createDie([4,2,1,6,3,5][i++ % 6]);
+        }, 100);
+        setTimeout(() => { 
+            clearInterval(timer); 
+            container.innerHTML = createDie(finalValue); 
+        }, 600);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize die with current value
+        const currentRoll = {{ $game->last_roll ?? 'null' }};
+        if (currentRoll) {
+            document.getElementById('die-container').innerHTML = createDie(currentRoll);
+        }
+        
+        // Listen for websocket events
+        const channel = window.Echo.channel('test-channel');
+        
+        channel.listen('BroadcastEvent', data => {
+            if (data.gameState?.last_roll !== undefined) {
+                // Animate the die
+                rollAnimation('die-container', data.gameState.last_roll);
+            }
+        });
+    });
+
     function rollDice() {
+        // Start animation immediately
+        rollAnimation('die-container', null);
+        
         axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
             _token: '{{ csrf_token() }}'
         })
         .then(function (response) {
-            // wait 3 seconds
-            setTimeout(function() {
-                window.location.reload(true);
-            }, 3000);
+            // Animation will be handled by websocket event
         })
         .catch(function (error) {
             console.error('Error rolling dice:', error);
