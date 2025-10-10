@@ -239,10 +239,7 @@
     // Function to check if all events are complete and trigger page reload
     function checkEventSequence() {
         if (eventSequence.rolledDice && eventSequence.playerMoved && eventSequence.endedTurn) {
-            console.log('All events complete, reloading page...');
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 2000); // Small delay to ensure animations are visible
+            window.location.reload(true);
         }
     }
 
