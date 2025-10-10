@@ -21,6 +21,10 @@ Route::get('/websocket', function () {
     return view('websocket');
 })->name('websocket');
 
+Route::get('/die-debug', function () {
+    return view('die-debug');
+})->name('die-debug');
+
 Route::get('/test', function () {
     $event = new BroadcastEvent("Hello");
 
