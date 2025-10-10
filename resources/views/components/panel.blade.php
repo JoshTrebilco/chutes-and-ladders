@@ -154,9 +154,12 @@
         <!-- Dice Roll Section -->
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl {{ $game->isInProgress() ? '' : 'hidden' }}">
             @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                <form action="{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}" method="post" class="flex justify-center">
-                    @csrf
-                    <button type="submit" class="transform transition hover:scale-105">
+                <div class="flex justify-center">
+                    <button 
+                        type="button" 
+                        class="transform transition hover:scale-105"
+                        onclick="rollDice()"
+                    >
                         <div class="flex flex-col items-center">
                             <div class="mb-2">
                                 <div class="inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
@@ -170,7 +173,7 @@
                             </div>
                         </div>
                     </button>
-                </form>
+                </div>
             @else
                 <div class="flex flex-col items-center">
                     <div class="mb-2">
@@ -184,3 +187,21 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    function rollDice() {
+        axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
+            _token: '{{ csrf_token() }}'
+        })
+        .then(function (response) {
+            // wait 3 seconds
+            setTimeout(function() {
+                window.location.reload(true);
+            }, 3000);
+        })
+        .catch(function (error) {
+            console.error('Error rolling dice:', error);
+        });
+    }
+</script>
