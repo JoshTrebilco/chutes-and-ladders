@@ -30,6 +30,37 @@ class BroadcastEvent implements ShouldBroadcastNow
         return new Channel('test-channel');
     }
 
+    public function broadcastWith()
+    {
+        $data = [
+            'event' => $this->event,
+            'gameState' => $this->gameState,
+            'playerState' => $this->playerState,
+        ];
+
+        // Convert large integers to strings to prevent JavaScript precision loss
+        return $this->convertLargeIntegersToStrings($data);
+    }
+
+    private function convertLargeIntegersToStrings($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->convertLargeIntegersToStrings($value);
+            }
+        } elseif (is_object($data)) {
+            $array = (array) $data;
+            foreach ($array as $key => $value) {
+                $array[$key] = $this->convertLargeIntegersToStrings($value);
+            }
+            $data = (object) $array;
+        } elseif (is_int($data)) {
+            return (string) $data;
+        }
+
+        return $data;
+    }
+
     public function getEvent()
     {
         return $this->event;
