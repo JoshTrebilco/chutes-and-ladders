@@ -1,4 +1,4 @@
-<div>
+<div class="bg-transparent">
     <div class="mt-2 lg:mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
         <x-board :board="$board" :game="$game" />
         <x-panel :game="$game" :auth_player="$authPlayer" />

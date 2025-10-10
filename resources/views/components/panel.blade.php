@@ -157,12 +157,12 @@
                 @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
                     <button 
                         type="button" 
-                        class="transform transition hover:scale-105"
+                        class=""
                         onclick="rollDice()"
                     >
                         <div class="flex flex-col items-center">
                             <div class="mb-2">
-                                <div class="inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
+                                <div class="w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
                                     <div id="die-container">
                                         <!-- Die will be rendered by JavaScript -->
                                     </div>
@@ -178,7 +178,7 @@
                 @else
                     <div class="flex flex-col items-center">
                         <div class="mb-2">
-                            <div id="die-container">
+                            <div id="die-container" class="w-24 h-24">
                                 <!-- Die will be rendered by JavaScript -->
                             </div>
                         </div>
@@ -207,18 +207,56 @@
     const createDie = v => `<div class="w-24 h-24 relative transform transition"><div class="absolute inset-0 bg-blue-500/20 rounded-2xl blur-lg"></div><div class="relative w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 shadow-xl grid grid-cols-3 gap-2 p-3">${dots[v]||''}</div></div>`;
 
     const rollAnimation = (containerId, finalValue) => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        
-        let i = 0;
-        const timer = setInterval(() => {
-            container.innerHTML = createDie([4,2,1,6,3,5][i++ % 6]);
-        }, 100);
-        setTimeout(() => { 
-            clearInterval(timer); 
-            container.innerHTML = createDie(finalValue); 
-        }, 600);
+        return new Promise((resolve) => {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                resolve();
+                return;
+            }
+            
+            let i = 0;
+            const timer = setInterval(() => {
+                container.innerHTML = createDie([4,2,1,6,3,5][i++ % 6]);
+            }, 100);
+            setTimeout(() => { 
+                clearInterval(timer); 
+                container.innerHTML = createDie(finalValue); 
+                resolve(); // Resolve when animation completes
+            }, 600);
+        });
     };
+
+    // Event handling state
+    let eventSequence = {
+        rolledDice: false,
+        playerMoved: false,
+        endedTurn: false,
+        gameId: null
+    };
+
+    // Function to handle player movement (placeholder for now)
+    function handlePlayerMoved(data) {
+        console.log('Player moved:', data);
+        // TODO: Implement player movement animation/logic here
+        return Promise.resolve(); // Return resolved promise for now
+    }
+
+    // Function to check if all events are complete and trigger page reload
+    function checkEventSequence() {
+        if (eventSequence.rolledDice && eventSequence.playerMoved && eventSequence.endedTurn) {
+            console.log('All events complete, reloading page...');
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 2000); // Small delay to ensure animations are visible
+        }
+    }
+
+    // Function to reset event sequence for new turn
+    function resetEventSequence() {
+        eventSequence.rolledDice = false;
+        eventSequence.playerMoved = false;
+        eventSequence.endedTurn = false;
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize die with current value
@@ -231,9 +269,26 @@
         const channel = window.Echo.channel('test-channel');
         
         channel.listen('BroadcastEvent', data => {
-            if (data.gameState?.last_roll !== undefined) {
-                // Animate the die
-                rollAnimation('die-container', data.gameState.last_roll);
+            if (data.event == 'App\\Events\\Gameplay\\RolledDice' && data.gameState?.last_roll !== undefined) {
+                eventSequence.gameId = data.gameState.id;
+                
+                rollAnimation('die-container', data.gameState.last_roll).then(() => {
+                    eventSequence.rolledDice = true;
+                    checkEventSequence();
+                });
+            }
+            
+            if (data.event == 'App\\Events\\Gameplay\\PlayerMoved') {
+                eventSequence.playerMoved = true;
+                
+                handlePlayerMoved(data).then(() => {
+                    checkEventSequence();
+                });
+            }
+            
+            if (data.event == 'App\\Events\\Gameplay\\EndedTurn') {
+                eventSequence.endedTurn = true;
+                checkEventSequence();
             }
         });
     });
