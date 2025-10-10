@@ -229,20 +229,20 @@
             document.getElementById('die-container').innerHTML = createDie(currentRoll);
         }
         
-        // Override shared event manager methods for panel-specific behavior
-        window.GameEventManager.onRolledDice = function(data) {
+        // Register panel-specific event handlers
+        window.GameEventManager.onRolledDice(function(data) {
             return rollAnimation('die-container', data.gameState.last_roll);
-        };
+        });
 
-        window.GameEventManager.onPlayerMoved = function(data) {
+        window.GameEventManager.onPlayerMoved(function(data) {
             console.log('Panel: Player moved:', data);
             // TODO: Implement panel-specific player movement logic here
             return Promise.resolve();
-        };
+        });
 
-        window.GameEventManager.onAllEventsComplete = function() {
+        window.GameEventManager.onAllEventsComplete(function() {
             window.location.reload(true);
-        };
+        });
     });
 
     function rollDice() {

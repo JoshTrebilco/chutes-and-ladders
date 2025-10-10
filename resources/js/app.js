@@ -12,11 +12,19 @@ window.GameEventManager = {
         gameId: null
     },
 
+    // Array of handlers for each event type
+    handlers: {
+        rolledDice: [],
+        playerMoved: [],
+        endedTurn: [],
+        allEventsComplete: []
+    },
+
     // Function to check if all events are complete
     checkEventSequence: function() {
         if (this.eventSequence.rolledDice && this.eventSequence.playerMoved && this.eventSequence.endedTurn) {
             console.log('All events complete');
-            this.onAllEventsComplete();
+            this.handlers.allEventsComplete.forEach(handler => handler());
         }
     },
 
@@ -27,9 +35,21 @@ window.GameEventManager = {
         this.eventSequence.endedTurn = false;
     },
 
-    // Override this method in components that need custom completion handling
-    onAllEventsComplete: function() {
-        // Default: do nothing, let components override
+    // Register handlers for events
+    onRolledDice: function(handler) {
+        this.handlers.rolledDice.push(handler);
+    },
+
+    onPlayerMoved: function(handler) {
+        this.handlers.playerMoved.push(handler);
+    },
+
+    onEndedTurn: function(handler) {
+        this.handlers.endedTurn.push(handler);
+    },
+
+    onAllEventsComplete: function(handler) {
+        this.handlers.allEventsComplete.push(handler);
     },
 
     // Initialize event listeners
@@ -41,40 +61,31 @@ window.GameEventManager = {
                 // Reset event sequence for new roll
                 this.resetEventSequence();
                 this.eventSequence.gameId = data.gameState.id;
-                this.onRolledDice(data).then(() => {
+                
+                // Call all rolledDice handlers
+                const promises = this.handlers.rolledDice.map(handler => handler(data));
+                Promise.all(promises).then(() => {
                     this.eventSequence.rolledDice = true;
                     this.checkEventSequence();
                 });
             }
             
             if (data.event == 'App\\Events\\Gameplay\\PlayerMoved') {
-                this.eventSequence.playerMoved = true;
-                this.onPlayerMoved(data).then(() => {
+                // Call all playerMoved handlers
+                const promises = this.handlers.playerMoved.map(handler => handler(data));
+                Promise.all(promises).then(() => {
+                    this.eventSequence.playerMoved = true;
                     this.checkEventSequence();
                 });
             }
             
             if (data.event == 'App\\Events\\Gameplay\\EndedTurn') {
+                // Call all endedTurn handlers
+                this.handlers.endedTurn.forEach(handler => handler(data));
                 this.eventSequence.endedTurn = true;
-                this.onEndedTurn(data);
                 this.checkEventSequence();
             }
         });
-    },
-
-    // Override these methods in components for custom handling
-    onRolledDice: function(data) {
-        // Default: return resolved promise immediately
-        return Promise.resolve();
-    },
-
-    onPlayerMoved: function(data) {
-        // Default: return resolved promise
-        return Promise.resolve();
-    },
-
-    onEndedTurn: function(data) {
-        // Default: do nothing
     }
 };
 
