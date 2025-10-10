@@ -154,39 +154,34 @@
         <!-- Dice Roll Section -->
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl {{ $game->isInProgress() ? '' : 'hidden' }}">
             <div class="flex justify-center">
-                @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                    <button 
-                        type="button" 
-                        class=""
-                        onclick="rollDice()"
-                    >
-                        <div class="flex flex-col items-center">
-                            <div class="mb-2">
-                                <div class="w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]">
-                                    <div id="die-container">
-                                        <!-- Die will be rendered by JavaScript -->
-                                    </div>
+                <div class="flex flex-col items-center">
+                    <div class="mb-2 h-24 w-24 flex items-center justify-center">
+                        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
+                            <button 
+                                type="button" 
+                                class="w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]"
+                                onclick="rollDice()"
+                            >
+                                <div id="die-container" class="w-full h-full">
+                                    <!-- Die will be rendered by JavaScript -->
                                 </div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-blue-300 inline-block animate-[pulse_2s_ease-in-out_infinite]">
-                                    It's your turn
-                                </span>
-                            </div>
-                        </div>
-                    </button>
-                @else
-                    <div class="flex flex-col items-center">
-                        <div class="mb-2">
+                            </button>
+                        @else
                             <div id="die-container" class="w-24 h-24">
                                 <!-- Die will be rendered by JavaScript -->
                             </div>
-                        </div>
-                        <div class="text-center text-blue-300">
-                            It's {{ $game->activePlayer()?->name }}'s turn
-                        </div>
+                        @endif
                     </div>
-                @endif
+                    <div class="text-center text-blue-300 h-6 w-32 flex items-center justify-center">
+                        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
+                            <span class="inline-block animate-[pulse_2s_ease-in-out_infinite]">
+                                It's your turn
+                            </span>
+                        @else
+                            It's {{ $game->activePlayer()?->name }}'s turn
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>
