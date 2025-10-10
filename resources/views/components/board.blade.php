@@ -92,3 +92,21 @@
         @endforeach
     </svg>
 </div>
+
+<script>
+    // Board-specific event handling
+    document.addEventListener('DOMContentLoaded', () => {
+        // Override shared event manager methods for board-specific behavior
+        window.GameEventManager.onPlayerMoved = function(data) {
+            console.log('Board: Player moved:', data);
+            // TODO: Implement player movement animation on the board here
+            return Promise.resolve();
+        };
+
+        window.GameEventManager.onAllEventsComplete = function() {
+            console.log('Board: All events complete, resetting for next turn');
+            // Board doesn't need to reload, just reset for next turn
+            window.GameEventManager.resetEventSequence();
+        };
+    });
+</script>

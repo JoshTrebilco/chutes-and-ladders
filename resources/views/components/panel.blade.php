@@ -221,35 +221,7 @@
         });
     };
 
-    // Event handling state
-    let eventSequence = {
-        rolledDice: false,
-        playerMoved: false,
-        endedTurn: false,
-        gameId: null
-    };
-
-    // Function to handle player movement (placeholder for now)
-    function handlePlayerMoved(data) {
-        console.log('Player moved:', data);
-        // TODO: Implement player movement animation/logic here
-        return Promise.resolve(); // Return resolved promise for now
-    }
-
-    // Function to check if all events are complete and trigger page reload
-    function checkEventSequence() {
-        if (eventSequence.rolledDice && eventSequence.playerMoved && eventSequence.endedTurn) {
-            window.location.reload(true);
-        }
-    }
-
-    // Function to reset event sequence for new turn
-    function resetEventSequence() {
-        eventSequence.rolledDice = false;
-        eventSequence.playerMoved = false;
-        eventSequence.endedTurn = false;
-    }
-
+    // Panel-specific event handling
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize die with current value
         const currentRoll = {{ $game->last_roll ?? 'null' }};
@@ -257,32 +229,20 @@
             document.getElementById('die-container').innerHTML = createDie(currentRoll);
         }
         
-        // Listen for websocket events
-        const channel = window.Echo.channel('test-channel');
-        
-        channel.listen('BroadcastEvent', data => {
-            if (data.event == 'App\\Events\\Gameplay\\RolledDice' && data.gameState?.last_roll !== undefined) {
-                eventSequence.gameId = data.gameState.id;
-                
-                rollAnimation('die-container', data.gameState.last_roll).then(() => {
-                    eventSequence.rolledDice = true;
-                    checkEventSequence();
-                });
-            }
-            
-            if (data.event == 'App\\Events\\Gameplay\\PlayerMoved') {
-                eventSequence.playerMoved = true;
-                
-                handlePlayerMoved(data).then(() => {
-                    checkEventSequence();
-                });
-            }
-            
-            if (data.event == 'App\\Events\\Gameplay\\EndedTurn') {
-                eventSequence.endedTurn = true;
-                checkEventSequence();
-            }
-        });
+        // Override shared event manager methods for panel-specific behavior
+        window.GameEventManager.onRolledDice = function(data) {
+            return rollAnimation('die-container', data.gameState.last_roll);
+        };
+
+        window.GameEventManager.onPlayerMoved = function(data) {
+            console.log('Panel: Player moved:', data);
+            // TODO: Implement panel-specific player movement logic here
+            return Promise.resolve();
+        };
+
+        window.GameEventManager.onAllEventsComplete = function() {
+            window.location.reload(true);
+        };
     });
 
     function rollDice() {
