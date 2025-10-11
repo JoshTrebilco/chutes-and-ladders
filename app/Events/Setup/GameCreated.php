@@ -16,13 +16,13 @@ class GameCreated extends Event
 
     public function validate(GameState $game)
     {
-        $this->assert(! $game->started, 'The game has already started');
+        $this->assert(! $game->created, 'The game has already been created');
     }
 
     public function applyToGame(GameState $game)
     {
-        $game->started = true;
-        $game->started_at = now()->toImmutable();
+        $game->created = true;
+        $game->created_at = now()->toImmutable();
         $game->player_ids = [];
     }
 

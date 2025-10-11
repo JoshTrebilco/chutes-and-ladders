@@ -8,7 +8,7 @@ use Thunk\Verbs\State;
 
 class GameState extends State
 {
-    public bool $started = false;
+    public bool $created = false;
 
     public ?int $last_roll = null;
 
@@ -20,7 +20,7 @@ class GameState extends State
 
     public ?int $winner_id = null;
 
-    public CarbonImmutable $started_at;
+    public CarbonImmutable $created_at;
 
     public array $available_colors = ['blue', 'green', 'red', 'yellow'];
 
