@@ -152,30 +152,12 @@
             <div class="flex justify-center">
                 <div class="flex flex-col items-center">
                     <div class="mb-2 h-24 w-24 flex items-center justify-center">
-                        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                            <button 
-                                type="button" 
-                                class="w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]"
-                                onclick="rollDice()"
-                            >
-                                <div id="die-container" class="w-full h-full">
-                                    <!-- Die will be rendered by JavaScript -->
-                                </div>
-                            </button>
-                        @else
-                            <div id="die-container" class="w-24 h-24">
-                                <!-- Die will be rendered by JavaScript -->
-                            </div>
-                        @endif
+                        <div id="die-container" class="w-24 h-24">
+                            <!-- Die will be rendered by JavaScript -->
+                        </div>
                     </div>
-                    <div class="text-center text-blue-300 h-6 w-32 flex items-center justify-center">
-                        @if ($game->hasPlayer($auth_player?->id) && $game->activePlayer()?->id == $auth_player?->id)
-                            <span class="inline-block animate-[pulse_2s_ease-in-out_infinite]">
-                                It's your turn
-                            </span>
-                        @else
-                            It's {{ $game->activePlayer()?->name }}'s turn
-                        @endif
+                    <div class="text-center text-blue-300 h-6 w-32 flex items-center justify-center" id="turn-text">
+                        <!-- Turn text will be updated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -224,8 +206,58 @@
             document.getElementById('die-container').innerHTML = createDie(currentRoll);
         }
         
+        // Player data
+        let players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name])) !!};
+        const authPlayerId = '{{ $auth_player?->id ?? 'null' }}';
+        let activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
+
+        // Update dice button and turn text
+        function updateUI() {
+            const dieContainer = document.getElementById('die-container');
+            const turnText = document.getElementById('turn-text');
+
+            const isMyTurn = authPlayerId && activePlayerId === authPlayerId;
+
+            // Toggle dice button by replacing the parent element
+            const parentElement = dieContainer.parentElement;
+            if (isMyTurn && parentElement.tagName !== 'BUTTON') {
+                // Convert to clickable button
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]';
+                button.onclick = () => window.rollDice();
+                button.appendChild(dieContainer);
+                parentElement.parentElement.replaceChild(button, parentElement);
+            } else if (!isMyTurn && parentElement.tagName === 'BUTTON') {
+                // Convert to non-clickable div
+                const div = document.createElement('div');
+                div.className = 'w-24 h-24';
+                div.appendChild(dieContainer);
+                parentElement.parentElement.replaceChild(div, parentElement);
+            }
+
+            // Update turn text
+            if (isMyTurn) {
+                turnText.innerHTML = '<span class="inline-block animate-[pulse_2s_ease-in-out_infinite]">It\'s your turn</span>';
+            } else {
+                const activePlayer = players.find(p => p.id === activePlayerId);
+                turnText.textContent = `It's ${activePlayer?.name || 'Unknown Player'}'s turn`;
+            }
+        }
+
         // Game event handlers
         window.GameEventManager.onRolledDice(data => rollAnimation('die-container', data.gameState.last_roll));
+        
+        // Handle EndedTurn event
+        window.GameEventManager.onEndedTurn(data => {
+            if (data.gameState?.active_player_id !== undefined) {
+                activePlayerId = String(data.gameState.active_player_id);
+                updateUI();
+            }
+        });
+
+        // Initialize UI
+        updateUI();
 
         // Copy button
         document.getElementById('copy-button')?.addEventListener('click', async () => {
