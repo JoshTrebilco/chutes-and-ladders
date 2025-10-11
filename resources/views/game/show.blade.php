@@ -47,6 +47,10 @@
             if (event === 'App\\Events\\Gameplay\\PlayerWonGame' && gameState?.winner_id !== undefined) {
                 this.showWinner(gameState.winner_id);
             }
+
+            if (event.startsWith('App\\Events\\Setup')) {
+                window.location.reload();
+            }
         }
 
         showWinner(winnerId) {
