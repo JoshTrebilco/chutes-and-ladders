@@ -23,25 +23,52 @@
                     <h2 class="text-2xl font-bold text-blue-300 mb-4">Join a Game</h2>
                     <p class="text-blue-200 mb-6">Got an invite? Enter the game code below to join your friends!</p>
 
-                    <div x-data="{ game_id: '' }">
-                        <form @submit.prevent="if (game_id.trim() !== '') { window.location.href = `./games/${game_id}` }"
-                                class="space-y-4">
-                            <input
-                                type="text"
-                                x-model="game_id"
-                                class="w-full px-4 py-3 rounded-lg border-2 border-purple-700 bg-slate-900 text-blue-100 placeholder-blue-500 focus:border-purple-500 focus:ring-0 focus:outline-none"
-                                placeholder="Enter game code..."
-                            />
-                            <button
-                                type="submit"
-                                class="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg px-4 py-3 font-semibold transform transition hover:translate-y-[-2px]"
-                                :disabled="game_id.trim() === ''"
-                                :class="{ 'opacity-50 cursor-not-allowed': game_id.trim() === '' }"
-                            >
-                                Join Adventure
-                            </button>
-                        </form>
-                    </div>
+                    <form id="joinGameForm" class="space-y-4">
+                        <input
+                            type="text"
+                            id="gameId"
+                            name="game_id"
+                            class="w-full px-4 py-3 rounded-lg border-2 border-purple-700 bg-slate-900 text-blue-100 placeholder-blue-500 focus:border-purple-500 focus:ring-0 focus:outline-none"
+                            placeholder="Enter game code..."
+                            required
+                        />
+                        <button
+                            type="submit"
+                            id="joinButton"
+                            class="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg px-4 py-3 font-semibold transform transition hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Join Adventure
+                        </button>
+                    </form>
+
+                    <script>
+                        document.getElementById('joinGameForm').addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const gameId = document.getElementById('gameId').value.trim();
+                            const button = document.getElementById('joinButton');
+                            
+                            if (gameId === '') {
+                                alert('Please enter a game code');
+                                return;
+                            }
+                            
+                            // Disable button to prevent double submission
+                            button.disabled = true;
+                            button.textContent = 'Joining...';
+                            
+                            // Redirect to the game
+                            window.location.href = `./games/${gameId}`;
+                        });
+
+                        // Enable/disable button based on input
+                        document.getElementById('gameId').addEventListener('input', function() {
+                            const button = document.getElementById('joinButton');
+                            const gameId = this.value.trim();
+                            
+                            button.disabled = gameId === '';
+                        });
+                    </script>
                 </div>
             </div>
 
