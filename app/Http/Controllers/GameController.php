@@ -32,6 +32,7 @@ class GameController extends Controller
             'game' => GameState::load($game_id),
             'board' => new Board,
             'authPlayer' => $auth_player_id ? PlayerState::load($auth_player_id) : null,
+            'squarePositions' => (new Board)->getAllSquarePositions(),
         ]);
     }
 

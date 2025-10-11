@@ -10,6 +10,8 @@ class PlayerState extends State
 
     public int $position;
 
+    public int $previous_position;
+
     public string $name;
 
     public ?string $color = null;

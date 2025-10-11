@@ -12,7 +12,7 @@
 
     <!-- Game Board -->
     <div class="mt-2 lg:mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
-        <x-board :board="$board" :game="$game" />
+        <x-board :board="$board" :game="$game" :square-positions="$squarePositions" />
         <x-panel :game="$game" :auth_player="$authPlayer" />
         @if($game->winner())
             <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center">

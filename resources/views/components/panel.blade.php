@@ -240,9 +240,6 @@
             return Promise.resolve();
         });
 
-        window.GameEventManager.onAllEventsComplete(function() {
-            window.location.reload(true);
-        });
     });
 
     function rollDice() {

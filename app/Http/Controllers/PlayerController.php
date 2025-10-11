@@ -71,6 +71,7 @@ class PlayerController extends Controller
             game_id: $game_id,
             player_id: $player_id,
             position: $position,
+            previous_position: $player->position,
         );
 
         $board = new Board;

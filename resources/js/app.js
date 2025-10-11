@@ -152,6 +152,12 @@ class GameEventManager {
         channel.listen('BroadcastEvent', (data) => {
             this.handleBroadcastEvent(data);
         });
+
+        // Register global game completion handler
+        this.onAllEventsComplete(() => {
+            // console.log('Game: All events complete, reloading page');
+            window.location.reload(true);
+        });
     }
 }
 

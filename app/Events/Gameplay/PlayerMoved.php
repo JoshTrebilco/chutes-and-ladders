@@ -18,10 +18,12 @@ class PlayerMoved extends Event
         public int $game_id,
         public int $player_id,
         public int $position,
+        public int $previous_position,
     ) {}
 
     public function applyToPlayer(PlayerState $player)
     {
+        $player->previous_position = $this->previous_position;
         $player->position = $this->position;
     }
 

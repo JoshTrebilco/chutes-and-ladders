@@ -173,4 +173,20 @@ class Board
     {
         return $this->calculatePathGeometry($chute, true);
     }
+
+    /**
+     * Get all square positions as an array for JavaScript consumption
+     * Returns an array where the key is the square number and value is [x, y] coordinates
+     */
+    public function getAllSquarePositions(): array
+    {
+        $positions = [];
+        
+        // Loop through all board numbers (1-100)
+        for ($number = 1; $number <= 100; $number++) {
+            $positions[$number] = $this->getSquarePosition($number);
+        }
+        
+        return $positions;
+    }
 }

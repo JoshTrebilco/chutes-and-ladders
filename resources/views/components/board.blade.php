@@ -66,7 +66,7 @@
             @php
                 [$tokenX, $tokenY] = $board->getSquarePosition($player->position);
             @endphp
-            <g class="player-token">
+            <g class="player-token" data-player-id="{{ $player->id }}" data-player-color="{{ $player->color }}">
                 <!-- Token glow effect -->
                 <circle
                     cx="{{ $tokenX }}"
@@ -94,13 +94,57 @@
 </div>
 
 <script>
+    const squarePositions = @json($squarePositions);
+
+    const movePlayer = (playerId, fromSquare, toSquare) => {
+        return new Promise((resolve) => {
+            const token = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (!token) {
+                console.warn(`Token for player ${playerId} not found`);
+                return resolve();
+            }
+            
+            const from = parseInt(fromSquare) || 1;
+            const to = parseInt(toSquare);
+            
+            if (from === to) return resolve();
+            
+            console.log(`Moving player ${playerId} from square ${from} to square ${to}`);
+            
+            // Generate squares to animate through
+            const squares = [];
+            const step = from < to ? 1 : -1;
+            for (let i = from + step; i !== to + step; i += step) {
+                squares.push(i);
+            }
+            
+            // Animate through each square
+            let index = 0;
+            const animateNext = () => {
+                if (index >= squares.length) return resolve();
+                
+                const square = squares[index++];
+                const [x, y] = squarePositions[square] || [0, 0];
+                
+                // Update all circles in the token
+                token.querySelectorAll('circle').forEach(circle => {
+                    circle.style.transition = 'cx 0.3s ease-in-out, cy 0.3s ease-in-out';
+                    circle.setAttribute('cx', x);
+                    circle.setAttribute('cy', y);
+                });
+                
+                setTimeout(animateNext, 300);
+            };
+            
+            animateNext();
+        });
+    };
+
     // Board-specific event handling
     document.addEventListener('DOMContentLoaded', () => {
         // Register board-specific event handlers
         window.GameEventManager.onPlayerMoved(function(data) {
-            console.log('Board: Player moved:', data);
-            // TODO: Implement player movement animation on the board here
-            return Promise.resolve();
+            return movePlayer(data.playerState.id, data.playerState.previous_position, data.playerState.position);
         });
 
         window.GameEventManager.onAllEventsComplete(function() {
