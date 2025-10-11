@@ -62,7 +62,7 @@
                 </h3>
             </div>
 
-            <div x-data="{ copied: false }" class="space-y-3">
+            <div id="copy-section" class="space-y-3">
                 <p class="text-blue-200/80 text-sm">Share this link with your friends to invite them to join your game:</p>
 
                 <div class="flex gap-2">
@@ -73,18 +73,14 @@
                         class="w-full px-4 py-2 rounded-lg border-2 border-purple-500/20 bg-slate-900/30 text-blue-200 text-sm focus:outline-none"
                     />
                     <button
-                        @click="
-                            navigator.clipboard.writeText('{{ url('/games/' . $game->id) }}');
-                            copied = true;
-                            setTimeout(() => copied = false, 2000);
-                        "
+                        id="copy-button"
                         class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg font-semibold transform transition hover:translate-y-[-2px]"
                     >
-                        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
-                        <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span id="copy-text">Copy</span>
+                        <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                         </svg>
-                        <svg x-show="copied" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="check-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </button>
@@ -221,25 +217,33 @@
         });
     };
 
-    // Panel-specific event handling
     document.addEventListener('DOMContentLoaded', () => {
-        // Initialize die with current value
+        // Initialize die
         const currentRoll = {{ $game->last_roll ?? 'null' }};
         if (currentRoll) {
             document.getElementById('die-container').innerHTML = createDie(currentRoll);
         }
         
-        // Register panel-specific event handlers
-        window.GameEventManager.onRolledDice(function(data) {
-            return rollAnimation('die-container', data.gameState.last_roll);
-        });
+        // Game event handlers
+        window.GameEventManager.onRolledDice(data => rollAnimation('die-container', data.gameState.last_roll));
 
-        window.GameEventManager.onPlayerMoved(function(data) {
-            console.log('Panel: Player moved:', data);
-            // TODO: Implement panel-specific player movement logic here
-            return Promise.resolve();
+        // Copy button
+        document.getElementById('copy-button')?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText('{{ url('/games/' . $game->id) }}');
+                document.getElementById('copy-text').textContent = 'Copied!';
+                document.getElementById('copy-icon').classList.add('hidden');
+                document.getElementById('check-icon').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('copy-text').textContent = 'Copy';
+                    document.getElementById('copy-icon').classList.remove('hidden');
+                    document.getElementById('check-icon').classList.add('hidden');
+                }, 2000);
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
         });
-
     });
 
     function rollDice() {
