@@ -1,93 +1,162 @@
 import './bootstrap';
-
 import './echo';
 
-// Shared event handling logic for game components
-window.GameEventManager = {
-    // Event handling state
-    eventSequence: {
-        rolledDice: false,
-        playerMoved: false,
-        endedTurn: false,
-        gameId: null
-    },
+/**
+ * Event type constants to avoid magic strings
+ */
+const EVENT_TYPES = {
+    ROLLED_DICE: 'App\\Events\\Gameplay\\RolledDice',
+    PLAYER_MOVED: 'App\\Events\\Gameplay\\PlayerMoved',
+    ENDED_TURN: 'App\\Events\\Gameplay\\EndedTurn'
+};
 
-    // Array of handlers for each event type
-    handlers: {
-        rolledDice: [],
-        playerMoved: [],
-        endedTurn: [],
-        allEventsComplete: []
-    },
+/**
+ * GameEventManager - Handles game event sequencing and broadcasting
+ * Manages the flow of game events and ensures proper sequencing
+ */
+class GameEventManager {
+    constructor() {
+        this.eventSequence = {
+            rolledDice: false,
+            playerMoved: false,
+            endedTurn: false,
+            gameId: null
+        };
 
-    // Function to check if all events are complete
-    checkEventSequence: function() {
-        if (this.eventSequence.rolledDice && this.eventSequence.playerMoved && this.eventSequence.endedTurn) {
+        this.handlers = {
+            rolledDice: [],
+            playerMoved: [],
+            endedTurn: [],
+            allEventsComplete: []
+        };
+    }
+
+    /**
+     * Checks if all events in the current sequence are complete
+     */
+    checkEventSequence() {
+        const { rolledDice, playerMoved, endedTurn } = this.eventSequence;
+        
+        if (rolledDice && playerMoved && endedTurn) {
             console.log('All events complete');
             this.handlers.allEventsComplete.forEach(handler => handler());
         }
-    },
+    }
 
-    // Function to reset event sequence for new turn
-    resetEventSequence: function() {
+    /**
+     * Resets the event sequence for a new turn
+     */
+    resetEventSequence() {
         this.eventSequence.rolledDice = false;
         this.eventSequence.playerMoved = false;
         this.eventSequence.endedTurn = false;
-    },
+    }
 
-    // Register handlers for events
-    onRolledDice: function(handler) {
+    /**
+     * Registers a handler for the rolled dice event
+     * @param {Function} handler - Function to call when dice are rolled
+     */
+    onRolledDice(handler) {
         this.handlers.rolledDice.push(handler);
-    },
+    }
 
-    onPlayerMoved: function(handler) {
+    /**
+     * Registers a handler for the player moved event
+     * @param {Function} handler - Function to call when a player moves
+     */
+    onPlayerMoved(handler) {
         this.handlers.playerMoved.push(handler);
-    },
+    }
 
-    onEndedTurn: function(handler) {
+    /**
+     * Registers a handler for the ended turn event
+     * @param {Function} handler - Function to call when a turn ends
+     */
+    onEndedTurn(handler) {
         this.handlers.endedTurn.push(handler);
-    },
+    }
 
-    onAllEventsComplete: function(handler) {
+    /**
+     * Registers a handler for when all events are complete
+     * @param {Function} handler - Function to call when all events are done
+     */
+    onAllEventsComplete(handler) {
         this.handlers.allEventsComplete.push(handler);
-    },
+    }
 
-    // Initialize event listeners
-    init: function() {
-        const channel = window.Echo.channel('test-channel');
+    /**
+     * Executes handlers for a specific event type with error handling
+     * @param {string} eventType - The type of event handlers to execute
+     * @param {Object} data - Event data to pass to handlers
+     * @param {boolean} usePromises - Whether to use Promise.all for async handling
+     */
+    async executeHandlers(eventType, data, usePromises = false) {
+        const handlers = this.handlers[eventType];
         
-        channel.listen('BroadcastEvent', data => {
-            if (data.event == 'App\\Events\\Gameplay\\RolledDice' && data.gameState?.last_roll !== undefined) {
-                // Reset event sequence for new roll
-                this.resetEventSequence();
-                this.eventSequence.gameId = data.gameState.id;
-                
-                // Call all rolledDice handlers
-                const promises = this.handlers.rolledDice.map(handler => handler(data));
-                Promise.all(promises).then(() => {
+        if (!handlers.length) return;
+
+        try {
+            if (usePromises) {
+                const promises = handlers.map(handler => handler(data));
+                await Promise.all(promises);
+            } else {
+                handlers.forEach(handler => handler(data));
+            }
+        } catch (error) {
+            console.error(`Error executing ${eventType} handlers:`, error);
+        }
+    }
+
+    /**
+     * Handles incoming broadcast events
+     * @param {Object} data - Event data from the broadcast
+     */
+    async handleBroadcastEvent(data) {
+        const { event, gameState } = data;
+
+        switch (event) {
+            case EVENT_TYPES.ROLLED_DICE:
+                if (gameState?.last_roll !== undefined) {
+                    this.resetEventSequence();
+                    this.eventSequence.gameId = gameState.id;
+                    
+                    await this.executeHandlers('rolledDice', data, true);
                     this.eventSequence.rolledDice = true;
                     this.checkEventSequence();
-                });
-            }
-            
-            if (data.event == 'App\\Events\\Gameplay\\PlayerMoved') {
-                // Call all playerMoved handlers
-                const promises = this.handlers.playerMoved.map(handler => handler(data));
-                Promise.all(promises).then(() => {
-                    this.eventSequence.playerMoved = true;
-                    this.checkEventSequence();
-                });
-            }
-            
-            if (data.event == 'App\\Events\\Gameplay\\EndedTurn') {
-                // Call all endedTurn handlers
-                this.handlers.endedTurn.forEach(handler => handler(data));
+                }
+                break;
+
+            case EVENT_TYPES.PLAYER_MOVED:
+                await this.executeHandlers('playerMoved', data, true);
+                this.eventSequence.playerMoved = true;
+                this.checkEventSequence();
+                break;
+
+            case EVENT_TYPES.ENDED_TURN:
+                await this.executeHandlers('endedTurn', data, false);
                 this.eventSequence.endedTurn = true;
                 this.checkEventSequence();
-            }
+                break;
+
+            default:
+                console.warn('Unknown event type:', event);
+        }
+    }
+
+    /**
+     * Initializes the event manager and sets up WebSocket listeners
+     */
+    init() {
+        const channel = window.Echo.channel('test-channel');
+        
+        channel.listen('BroadcastEvent', (data) => {
+            this.handleBroadcastEvent(data);
         });
     }
-};
+}
+
+// Create and expose the global instance
+window.GameEventManager = new GameEventManager();
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
