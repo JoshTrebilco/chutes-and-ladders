@@ -14,7 +14,7 @@ use App\Events\Gameplay\PlayerMoved;
 use App\Events\Gameplay\PlayerWonGame;
 use App\Events\Setup\PlayerJoinedGame;
 use Illuminate\Support\Facades\Auth;
-use App\Events\Setup\FirstPlayerSelected;
+use App\Events\Setup\GameStarted;
 use App\Events\Setup\PlayerColorSelected;
 use App\Events\Gameplay\PlayerClimbedLadder;
 use App\Events\Gameplay\PlayerFellDownChute;
@@ -116,7 +116,7 @@ class PlayerController extends Controller
 
         $player_id = $game->players()->random()->id;
 
-        event(new FirstPlayerSelected(
+        event(new GameStarted(
             game_id: $game_id,
             player_id: $player_id,
         ));

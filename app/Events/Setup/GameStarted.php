@@ -2,28 +2,29 @@
 
 namespace App\Events\Setup;
 
-use App\Events\BroadcastEvent;
 use Thunk\Verbs\Event;
 use App\States\GameState;
+use App\Events\BroadcastEvent;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
 
 #[AppliesToState(GameState::class)]
 class GameStarted extends Event
 {
     public function __construct(
-        public ?int $game_id = null,
+        public int $game_id,
+        public int $player_id,
     ) {}
 
     public function validate(GameState $game)
     {
-        $this->assert(! $game->started, 'The game has already started');
+        $this->assert($game->activePlayer() === null, 'A player has already been selected.');
+        $this->assert($game->hasPlayer($this->player_id), 'This player is not part of the game.');
+        $this->assert($game->hasEnoughPlayers(), 'There must be at least two players in the game.');
     }
 
     public function applyToGame(GameState $game)
     {
-        $game->started = true;
-        $game->started_at = now()->toImmutable();
-        $game->player_ids = [];
+        $game->active_player_id = $this->player_id;
     }
 
     public function handle(GameState $game)

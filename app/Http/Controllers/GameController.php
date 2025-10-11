@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Setup\GameStarted;
+use App\Events\Setup\GameCreated;
 use App\Game\Board;
 use App\States\GameState;
 use App\States\PlayerState;
@@ -33,7 +33,7 @@ class GameController extends Controller
 
     public function store(Request $request)
     {
-        $event = GameStarted::fire();
+        $event = GameCreated::fire();
 
         return redirect()->route('games.show', $event->game_id);
     }
