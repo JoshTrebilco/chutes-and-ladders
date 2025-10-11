@@ -156,7 +156,7 @@
                             <!-- Die will be rendered by JavaScript -->
                         </div>
                     </div>
-                    <div class="text-center text-blue-300 h-6 w-32 flex items-center justify-center" id="turn-text">
+                    <div class="mt-2 text-center text-blue-300 h-6 w-32 flex items-center justify-center" id="turn-text">
                         <!-- Turn text will be updated by JavaScript -->
                     </div>
                 </div>
@@ -246,13 +246,22 @@
         }
 
         // Game event handlers
-        window.GameEventManager.onRolledDice(data => rollAnimation('die-container', data.gameState.last_roll));
+        const channel = window.Echo.channel('test-channel');
         
-        // Handle EndedTurn event
-        window.GameEventManager.onEndedTurn(data => {
-            if (data.gameState?.active_player_id !== undefined) {
-                activePlayerId = String(data.gameState.active_player_id);
-                updateUI();
+        channel.listen('BroadcastEvent', (data) => {
+            const { event, gameState } = data;
+            
+            if (event === 'App\\Events\\Gameplay\\RolledDice') {
+                if (gameState?.last_roll !== undefined) {
+                    rollAnimation('die-container', gameState.last_roll);
+                }
+            }
+            
+            if (event === 'App\\Events\\Gameplay\\EndedTurn') {
+                if (gameState?.active_player_id !== undefined) {
+                    activePlayerId = String(gameState.active_player_id);
+                    updateUI();
+                }
             }
         });
 

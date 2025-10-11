@@ -109,8 +109,6 @@
             
             if (from === to) return resolve();
             
-            console.log(`Moving player ${playerId} from square ${from} to square ${to}`);
-            
             // Generate squares to animate through
             const squares = [];
             const step = from < to ? 1 : -1;
@@ -190,59 +188,58 @@
     document.addEventListener('DOMContentLoaded', () => {
         let movementInProgress = false;
         
-        // Register board-specific event handlers
-        window.GameEventManager.onPlayerMoved(function(data) {
-            movementInProgress = true;
-            return movePlayer(data.playerState.id, data.playerState.previous_position, data.playerState.position)
-                .then(() => {
-                    movementInProgress = false;
-                });
-        });
-
-        window.GameEventManager.onPlayerClimbedLadder(function(data) {
-            // Wait for movement to complete before starting ladder climb
-            const waitForMovement = () => {
-                return new Promise((resolve) => {
-                    const checkMovement = () => {
-                        if (!movementInProgress) {
-                            resolve();
-                        } else {
-                            setTimeout(checkMovement, 50);
-                        }
-                    };
-                    checkMovement();
-                });
-            };
+        const channel = window.Echo.channel('test-channel');
+        
+        channel.listen('BroadcastEvent', (data) => {
+            const { event, playerState } = data;
             
-            return waitForMovement().then(() => {
-                return climbLadder(data.playerState.id, data.playerState.previous_position, data.playerState.position);
-            });
-        });
-
-        window.GameEventManager.onPlayerFellDownChute(function(data) {
-            // Wait for movement to complete before starting chute fall
-            const waitForMovement = () => {
-                return new Promise((resolve) => {
-                    const checkMovement = () => {
-                        if (!movementInProgress) {
-                            resolve();
-                        } else {
-                            setTimeout(checkMovement, 50);
-                        }
-                    };
-                    checkMovement();
-                });
-            };
+            if (event === 'App\\Events\\Gameplay\\PlayerMoved') {
+                movementInProgress = true;
+                movePlayer(playerState.id, playerState.previous_position, playerState.position)
+                    .then(() => {
+                        movementInProgress = false;
+                    });
+            }
             
-            return waitForMovement().then(() => {
-                return fallDownChute(data.playerState.id, data.playerState.previous_position, data.playerState.position);
-            });
-        });
-
-        window.GameEventManager.onAllEventsComplete(function() {
-            console.log('Board: All events complete, resetting for next turn');
-            // Board doesn't need to reload, just reset for next turn
-            window.GameEventManager.resetEventSequence();
+            if (event === 'App\\Events\\Gameplay\\PlayerClimbedLadder') {
+                // Wait for movement to complete before starting ladder climb
+                const waitForMovement = () => {
+                    return new Promise((resolve) => {
+                        const checkMovement = () => {
+                            if (!movementInProgress) {
+                                resolve();
+                            } else {
+                                setTimeout(checkMovement, 50);
+                            }
+                        };
+                        checkMovement();
+                    });
+                };
+                
+                waitForMovement().then(() => {
+                    climbLadder(playerState.id, playerState.previous_position, playerState.position);
+                });
+            }
+            
+            if (event === 'App\\Events\\Gameplay\\PlayerFellDownChute') {
+                // Wait for movement to complete before starting chute fall
+                const waitForMovement = () => {
+                    return new Promise((resolve) => {
+                        const checkMovement = () => {
+                            if (!movementInProgress) {
+                                resolve();
+                            } else {
+                                setTimeout(checkMovement, 50);
+                            }
+                        };
+                        checkMovement();
+                    });
+                };
+                
+                waitForMovement().then(() => {
+                    fallDownChute(playerState.id, playerState.previous_position, playerState.position);
+                });
+            }
         });
     });
 </script>
