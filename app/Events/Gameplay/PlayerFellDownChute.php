@@ -21,6 +21,7 @@ class PlayerFellDownChute extends Event
 
     public function applyToPlayer(PlayerState $player)
     {
+        $player->previous_position = $player->position;
         $player->position = $this->end;
     }
 

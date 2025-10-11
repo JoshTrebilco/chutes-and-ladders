@@ -140,11 +140,103 @@
         });
     };
 
+    const climbLadder = (playerId, fromSquare, toSquare) => {
+        return new Promise((resolve) => {
+            const token = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (!token) {
+                console.warn(`Token for player ${playerId} not found`);
+                return resolve();
+            }
+            
+            const [x, y] = squarePositions[toSquare] || [0, 0];
+            
+            console.log(`Player ${playerId} climbing ladder from square ${fromSquare} to square ${toSquare}`);
+            
+            // Direct diagonal animation (no stepping)
+            token.querySelectorAll('circle').forEach(circle => {
+                circle.style.transition = 'cx 0.8s ease-in-out, cy 0.8s ease-in-out';
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+            });
+            
+            setTimeout(resolve, 800);
+        });
+    };
+
+    const fallDownChute = (playerId, fromSquare, toSquare) => {
+        return new Promise((resolve) => {
+            const token = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (!token) {
+                console.warn(`Token for player ${playerId} not found`);
+                return resolve();
+            }
+            
+            const [x, y] = squarePositions[toSquare] || [0, 0];
+            
+            console.log(`Player ${playerId} falling down chute from square ${fromSquare} to square ${toSquare}`);
+            
+            // Direct diagonal animation (no stepping)
+            token.querySelectorAll('circle').forEach(circle => {
+                circle.style.transition = 'cx 0.8s ease-in-out, cy 0.8s ease-in-out';
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+            });
+            
+            setTimeout(resolve, 800);
+        });
+    };
+
     // Board-specific event handling
     document.addEventListener('DOMContentLoaded', () => {
+        let movementInProgress = false;
+        
         // Register board-specific event handlers
         window.GameEventManager.onPlayerMoved(function(data) {
-            return movePlayer(data.playerState.id, data.playerState.previous_position, data.playerState.position);
+            movementInProgress = true;
+            return movePlayer(data.playerState.id, data.playerState.previous_position, data.playerState.position)
+                .then(() => {
+                    movementInProgress = false;
+                });
+        });
+
+        window.GameEventManager.onPlayerClimbedLadder(function(data) {
+            // Wait for movement to complete before starting ladder climb
+            const waitForMovement = () => {
+                return new Promise((resolve) => {
+                    const checkMovement = () => {
+                        if (!movementInProgress) {
+                            resolve();
+                        } else {
+                            setTimeout(checkMovement, 50);
+                        }
+                    };
+                    checkMovement();
+                });
+            };
+            
+            return waitForMovement().then(() => {
+                return climbLadder(data.playerState.id, data.playerState.previous_position, data.playerState.position);
+            });
+        });
+
+        window.GameEventManager.onPlayerFellDownChute(function(data) {
+            // Wait for movement to complete before starting chute fall
+            const waitForMovement = () => {
+                return new Promise((resolve) => {
+                    const checkMovement = () => {
+                        if (!movementInProgress) {
+                            resolve();
+                        } else {
+                            setTimeout(checkMovement, 50);
+                        }
+                    };
+                    checkMovement();
+                });
+            };
+            
+            return waitForMovement().then(() => {
+                return fallDownChute(data.playerState.id, data.playerState.previous_position, data.playerState.position);
+            });
         });
 
         window.GameEventManager.onAllEventsComplete(function() {

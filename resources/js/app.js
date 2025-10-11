@@ -7,6 +7,8 @@ import './echo';
 const EVENT_TYPES = {
     ROLLED_DICE: 'App\\Events\\Gameplay\\RolledDice',
     PLAYER_MOVED: 'App\\Events\\Gameplay\\PlayerMoved',
+    PLAYER_CLIMBED_LADDER: 'App\\Events\\Gameplay\\PlayerClimbedLadder',
+    PLAYER_FELL_DOWN_CHUTE: 'App\\Events\\Gameplay\\PlayerFellDownChute',
     ENDED_TURN: 'App\\Events\\Gameplay\\EndedTurn'
 };
 
@@ -19,6 +21,8 @@ class GameEventManager {
         this.eventSequence = {
             rolledDice: false,
             playerMoved: false,
+            playerClimbedLadder: false,
+            playerFellDownChute: false,
             endedTurn: false,
             gameId: null
         };
@@ -26,6 +30,8 @@ class GameEventManager {
         this.handlers = {
             rolledDice: [],
             playerMoved: [],
+            playerClimbedLadder: [],
+            playerFellDownChute: [],
             endedTurn: [],
             allEventsComplete: []
         };
@@ -35,9 +41,12 @@ class GameEventManager {
      * Checks if all events in the current sequence are complete
      */
     checkEventSequence() {
-        const { rolledDice, playerMoved, endedTurn } = this.eventSequence;
+        const { rolledDice, playerMoved, playerClimbedLadder, playerFellDownChute, endedTurn } = this.eventSequence;
         
-        if (rolledDice && playerMoved && endedTurn) {
+        // Check if basic movement sequence is complete
+        const movementComplete = playerMoved && (playerClimbedLadder || playerFellDownChute || !playerClimbedLadder && !playerFellDownChute);
+        
+        if (rolledDice && movementComplete && endedTurn) {
             console.log('All events complete');
             this.handlers.allEventsComplete.forEach(handler => handler());
         }
@@ -49,6 +58,8 @@ class GameEventManager {
     resetEventSequence() {
         this.eventSequence.rolledDice = false;
         this.eventSequence.playerMoved = false;
+        this.eventSequence.playerClimbedLadder = false;
+        this.eventSequence.playerFellDownChute = false;
         this.eventSequence.endedTurn = false;
     }
 
@@ -66,6 +77,22 @@ class GameEventManager {
      */
     onPlayerMoved(handler) {
         this.handlers.playerMoved.push(handler);
+    }
+
+    /**
+     * Registers a handler for the player climbed ladder event
+     * @param {Function} handler - Function to call when a player climbs a ladder
+     */
+    onPlayerClimbedLadder(handler) {
+        this.handlers.playerClimbedLadder.push(handler);
+    }
+
+    /**
+     * Registers a handler for the player fell down chute event
+     * @param {Function} handler - Function to call when a player falls down a chute
+     */
+    onPlayerFellDownChute(handler) {
+        this.handlers.playerFellDownChute.push(handler);
     }
 
     /**
@@ -129,6 +156,18 @@ class GameEventManager {
             case EVENT_TYPES.PLAYER_MOVED:
                 await this.executeHandlers('playerMoved', data, true);
                 this.eventSequence.playerMoved = true;
+                this.checkEventSequence();
+                break;
+
+            case EVENT_TYPES.PLAYER_CLIMBED_LADDER:
+                await this.executeHandlers('playerClimbedLadder', data, true);
+                this.eventSequence.playerClimbedLadder = true;
+                this.checkEventSequence();
+                break;
+
+            case EVENT_TYPES.PLAYER_FELL_DOWN_CHUTE:
+                await this.executeHandlers('playerFellDownChute', data, true);
+                this.eventSequence.playerFellDownChute = true;
                 this.checkEventSequence();
                 break;
 
