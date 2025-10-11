@@ -6,7 +6,6 @@ use App\Game\Board;
 use App\States\GameState;
 use App\States\PlayerState;
 use Illuminate\Http\Request;
-use App\Events\BroadcastEvent;
 use App\Events\Gameplay\EndedTurn;
 use Illuminate\Routing\Controller;
 use App\Events\Gameplay\RolledDice;
