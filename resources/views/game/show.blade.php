@@ -53,27 +53,35 @@
             const winner = this.players.find(p => p.id === String(winnerId));
             if (!winner) return;
 
-            const modal = document.getElementById('winner-modal');
-            const token = document.getElementById('winner-token');
-            const text = document.getElementById('winner-text');
+            this.updateWinnerToken(winner);
+            this.updateWinnerText(winner);
+            this.displayWinnerModal();
+        }
 
-            // Update token with winner's color and initial
+        updateWinnerToken(winner) {
+            const token = document.getElementById('winner-token');
             token.className = `w-10 h-10 rounded-full bg-${winner.color}-500 flex items-center justify-center`;
             token.innerHTML = `<span class="text-white font-bold text-lg">${winner.name.charAt(0).toUpperCase()}</span>`;
+        }
 
-            // Update winner text
+        updateWinnerText(winner) {
+            const text = document.getElementById('winner-text');
             text.textContent = `${winner.name} won the game!`;
+        }
 
-            // Show modal
+        displayWinnerModal() {
+            const modal = document.getElementById('winner-modal');
             modal.classList.remove('hidden');
         }
 
-        init() {
-            // Check if there's already a winner on page load
+        checkInitialWinner() {
             @if($game->winner())
                 this.showWinner('{{ $game->winner()->id }}');
             @endif
+        }
 
+        init() {
+            this.checkInitialWinner();
             this.channel.listen('BroadcastEvent', (data) => {
                 this.handleEvent(data.event, data.gameState);
             });
