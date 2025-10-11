@@ -96,9 +96,9 @@
 
         <!-- Auth Section -->
         <div class="mt-12 text-center">
-            @if(session('user'))
+            @auth
                 <div class="inline-flex items-center space-x-2 bg-slate-900 rounded-full px-6 py-3 shadow-lg">
-                    <span class="text-blue-200">Playing as {{ session('user.name') }}</span>
+                    <span class="text-blue-200">Playing as {{ auth()->user()->name }}</span>
                     <form action="{{ route('logout.destroy') }}" method="post" class="inline">
                         @csrf
                         <button type="submit"
@@ -115,7 +115,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </a>
-            @endif
+            @endauth
         </div>
 
         <!-- Fun Footer -->

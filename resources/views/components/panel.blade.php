@@ -1,6 +1,6 @@
-@props(['game', 'auth_player'])
+@props(['game', 'auth_player_id'])
 <div class="space-y-6">
-    {{-- @if($game->hasPlayer($auth_player?->id) && ! $game->activePlayer())
+    {{-- @if($game->hasPlayer($auth_player_id) && ! $game->activePlayer())
         <div class="rounded-md bg-green-50 p-4 mb-5">
             <div class="flex">
                 <div class="flex-shrink-0">
@@ -17,7 +17,7 @@
         </div>
     @endif --}}
 
-    @if(! $game->hasPlayer($auth_player?->id) && ! $game->isInProgress())
+    @if(! $game->hasPlayer($auth_player_id) && ! $game->isInProgress())
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl">
             <div class="flex items-center space-x-3 mb-4">
                 <div class="flex-shrink-0">
@@ -46,7 +46,7 @@
         </div>
     @endif
 
-    @if ($game->hasPlayer($auth_player?->id) && !$game->isInProgress())
+    @if ($game->hasPlayer($auth_player_id) && !$game->isInProgress())
         <!-- Share Game Section -->
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl">
             <div class="flex items-center space-x-3 mb-4">
@@ -99,7 +99,7 @@
         </form>
     @endif
 
-    @if(! $game->hasPlayer($auth_player?->id) && $game->isInProgress())
+    @if(! $game->hasPlayer($auth_player_id) && $game->isInProgress())
         <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800/50 shadow-xl lg:max-w-60">
                 <div>
                     <h3 class="text-lg font-semibold text-blue-300">
@@ -128,7 +128,7 @@
                             <span class="text-blue-200">{{ $player->name }}</span>
 
                             <div class="flex items-center gap-2 ml-auto">
-                                @if ($player->id == $auth_player?->id)
+                                @if ($player->id == $auth_player_id)
                                     <span class="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-400 ring-1 ring-inset ring-purple-400/30">
                                         You
                                     </span>
@@ -170,7 +170,7 @@
     class Panel {
         constructor() {
             this.players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name])) !!};
-            this.authPlayerId = '{{ $auth_player?->id ?? 'null' }}';
+            this.authPlayerId = '{{ $auth_player_id ?? 'null' }}';
             this.activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
             this.dots = this.createDotsMap();
             this.channel = window.Echo.channel('test-channel');
@@ -214,6 +214,11 @@
         updateUI() {
             const dieContainer = document.getElementById('die-container');
             const turnText = document.getElementById('turn-text');
+
+            console.log(this.authPlayerId, this.activePlayerId);
+            console.log(typeof this.authPlayerId);
+            console.log(typeof this.activePlayerId);
+
             const isMyTurn = this.authPlayerId && this.activePlayerId === this.authPlayerId;
 
             this.toggleDiceButton(dieContainer, isMyTurn);
@@ -262,7 +267,7 @@
             this.rollAnimation('die-container', null);
             
             try {
-                await axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
+                await axios.post('{{ $auth_player_id ? route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player_id]) : null }}', {
                     _token: '{{ csrf_token() }}'
                 });
             } catch (error) {

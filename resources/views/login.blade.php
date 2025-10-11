@@ -1,4 +1,3 @@
-@php use Illuminate\Support\Facades\Session; @endphp
 <x-layout>
     <div class="min-h-screen w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -36,7 +35,7 @@
                                     id="name"
                                     name="name"
                                     autocomplete="name"
-                                    value="{{ Session::get('user.name') }}"
+                                    value="{{ old('name') }}"
                                     required
                                     class="w-full px-4 py-3 rounded-lg border-2 border-purple-700 bg-slate-900 text-blue-100 placeholder-blue-500 focus:border-purple-500 focus:ring-0 focus:outline-none"
                                     placeholder="Your adventurer name..."

@@ -6,7 +6,7 @@ use Thunk\Verbs\Event;
 use App\States\GameState;
 use App\States\PlayerState;
 use App\Events\BroadcastEvent;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 use Thunk\Verbs\Attributes\Autodiscovery\AppliesToState;
 
 #[AppliesToState(GameState::class)]
@@ -38,7 +38,7 @@ class PlayerJoinedGame extends Event
     {
         $player->position = 1;
         $player->setup = true;
-        $player->name = Session::get('user.name');
+        $player->name = Auth::user()?->name ?? 'Unknown Player';
     }
 
     public function handle(GameState $game, PlayerState $player)

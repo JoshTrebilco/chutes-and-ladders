@@ -13,7 +13,7 @@ use App\Events\Gameplay\RolledDice;
 use App\Events\Gameplay\PlayerMoved;
 use App\Events\Gameplay\PlayerWonGame;
 use App\Events\Setup\PlayerJoinedGame;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 use App\Events\Setup\FirstPlayerSelected;
 use App\Events\Setup\PlayerColorSelected;
 use App\Events\Gameplay\PlayerClimbedLadder;
@@ -24,8 +24,9 @@ class PlayerController extends Controller
     public function join(Request $request, int $game_id)
     {
         $player_id = snowflake_id();
+        $user = Auth::user();
 
-        Session::put('user.current_player_id', $player_id);
+        $user->update(['current_player_id' => $player_id]);
 
         event(new PlayerColorSelected(
             game_id: $game_id,
@@ -43,13 +44,11 @@ class PlayerController extends Controller
 
     public function rollDice(int $game_id, int $player_id)
     {
-        $die = rand(1, 6);
+        if (Auth::user()->current_player_id != $player_id) {
+            return redirect()->route('games.show', $game_id);
+        }
 
-        // event(new RolledDice(
-        //     game_id: $game_id,
-        //     player_id: $player_id,
-        //     die: $die,
-        // ));
+        $die = rand(1, 6);
 
         RolledDice::commit(
             game_id: $game_id,
@@ -61,12 +60,6 @@ class PlayerController extends Controller
 
         $position = $player->position + $die;
 
-        // event(new PlayerMoved(
-        //     game_id: $game_id,
-        //     player_id: $player_id,
-        //     position: $position,
-        // ));
-
         PlayerMoved::commit(
             game_id: $game_id,
             player_id: $player_id,
@@ -77,13 +70,6 @@ class PlayerController extends Controller
         $board = new Board;
 
         if ($board->hasChute($position)) {
-            // event(new PlayerFellDownChute(
-            //     game_id: $game_id,
-            //     player_id: $player_id,
-            //     start: $position,
-            //     end: $board->chute($position),
-            // ));
-
             PlayerFellDownChute::commit(
                 game_id: $game_id,
                 player_id: $player_id,
@@ -95,13 +81,6 @@ class PlayerController extends Controller
         }
 
         if ($board->hasLadder($position)) {
-            // event(new PlayerClimbedLadder(
-            //     game_id: $game_id,
-            //     player_id: $player_id,
-            //     start: $position,
-            //     end: $board->ladder($position),
-            // ));
-
             PlayerClimbedLadder::commit(
                 game_id: $game_id,
                 player_id: $player_id,
@@ -117,11 +96,6 @@ class PlayerController extends Controller
         }
 
         if ($die !== 6) {
-            // event(new EndedTurn(
-            //     game_id: $game_id,
-            //     player_id: $player_id,
-            // ));
-
             EndedTurn::commit(
                 game_id: $game_id,
                 player_id: $player_id,
@@ -129,18 +103,11 @@ class PlayerController extends Controller
         }
 
         if ($position === 100) {
-            // event(new PlayerWonGame(
-            //     game_id: $game_id,
-            //     player_id: $player_id,
-            // ));
-
             PlayerWonGame::commit(
                 game_id: $game_id,
                 player_id: $player_id,
             );
         }
-
-        // return redirect()->route('games.show', $game_id);
     }
 
     public function startGame(int $game_id)

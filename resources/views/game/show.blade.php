@@ -13,7 +13,7 @@
     <!-- Game Board -->
     <div class="mt-2 lg:mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
         <x-board :board="$board" :game="$game" :square-positions="$squarePositions" />
-        <x-panel :game="$game" :auth_player="$authPlayer" />
+        <x-panel :game="$game" :auth_player_id="$auth_player_id" />
         
         <!-- Winner Modal (controlled by JavaScript) -->
         <div id="winner-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-50">
@@ -38,7 +38,7 @@
     class Game {
         constructor() {
             this.players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name, 'color' => $p->color])) !!};
-            this.authPlayerId = '{{ $auth_player?->id ?? 'null' }}';
+            this.authPlayerId = '{{ $auth_player_id ?? 'null' }}';
             this.activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
             this.channel = window.Echo.channel('test-channel');
         }
