@@ -167,138 +167,160 @@
 
 
 <script>
-    // Die animation logic from die-debug.blade.php
-    const dots = {
-        1: '<span class="col-start-2 col-span-1 row-start-2 row-span-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
-        2: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
-        3: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
-        4: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
-        5: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
-        6: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>'
-    };
+    class Panel {
+        constructor() {
+            this.players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name])) !!};
+            this.authPlayerId = '{{ $auth_player?->id ?? 'null' }}';
+            this.activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
+            this.dots = this.createDotsMap();
+            this.channel = window.Echo.channel('test-channel');
+        }
 
-    const createDie = v => `<div class="w-24 h-24 relative transform transition"><div class="absolute inset-0 bg-blue-500/20 rounded-2xl blur-lg"></div><div class="relative w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 shadow-xl grid grid-cols-3 gap-2 p-3">${dots[v]||''}</div></div>`;
+        createDotsMap() {
+            return {
+                1: '<span class="col-start-2 col-span-1 row-start-2 row-span-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+                2: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+                3: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+                4: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+                5: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-2 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',
+                6: '<span class="col-start-1 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-1 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-2 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span><span class="col-start-3 row-start-3 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>'
+            };
+        }
 
-    const rollAnimation = (containerId, finalValue) => {
-        return new Promise((resolve) => {
+        createDie(value) {
+            return `<div class="w-24 h-24 relative transform transition">
+                <div class="absolute inset-0 bg-blue-500/20 rounded-2xl blur-lg"></div>
+                <div class="relative w-full h-full bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 shadow-xl grid grid-cols-3 gap-2 p-3">
+                    ${this.dots[value] || ''}
+                </div>
+            </div>`;
+        }
+
+        async rollAnimation(containerId, finalValue) {
             const container = document.getElementById(containerId);
-            if (!container) {
-                resolve();
-                return;
-            }
-            
+            if (!container) return;
+
             let i = 0;
             const timer = setInterval(() => {
-                container.innerHTML = createDie([4,2,1,6,3,5][i++ % 6]);
+                container.innerHTML = this.createDie([4,2,1,6,3,5][i++ % 6]);
             }, 100);
+
             setTimeout(() => { 
                 clearInterval(timer); 
-                container.innerHTML = createDie(finalValue); 
-                resolve(); // Resolve when animation completes
+                container.innerHTML = this.createDie(finalValue); 
             }, 600);
-        });
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initialize die
-        const currentRoll = {{ $game->last_roll ?? 'null' }};
-        if (currentRoll) {
-            document.getElementById('die-container').innerHTML = createDie(currentRoll);
         }
-        
-        // Player data
-        let players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name])) !!};
-        const authPlayerId = '{{ $auth_player?->id ?? 'null' }}';
-        let activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
 
-        // Update dice button and turn text
-        function updateUI() {
+        updateUI() {
             const dieContainer = document.getElementById('die-container');
             const turnText = document.getElementById('turn-text');
+            const isMyTurn = this.authPlayerId && this.activePlayerId === this.authPlayerId;
 
-            const isMyTurn = authPlayerId && activePlayerId === authPlayerId;
+            this.toggleDiceButton(dieContainer, isMyTurn);
+            this.updateTurnText(turnText, isMyTurn);
+        }
 
-            // Toggle dice button by replacing the parent element
+        toggleDiceButton(dieContainer, isMyTurn) {
             const parentElement = dieContainer.parentElement;
+            
             if (isMyTurn && parentElement.tagName !== 'BUTTON') {
-                // Convert to clickable button
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'w-24 h-24 inline-flex rounded-2xl ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-[pulse_2s_ease-in-out_infinite]';
-                button.onclick = () => window.rollDice();
+                button.onclick = () => this.rollDice();
                 button.appendChild(dieContainer);
                 parentElement.parentElement.replaceChild(button, parentElement);
             } else if (!isMyTurn && parentElement.tagName === 'BUTTON') {
-                // Convert to non-clickable div
                 const div = document.createElement('div');
                 div.className = 'w-24 h-24';
                 div.appendChild(dieContainer);
                 parentElement.parentElement.replaceChild(div, parentElement);
             }
+        }
 
-            // Update turn text
+        updateTurnText(turnText, isMyTurn) {
             if (isMyTurn) {
                 turnText.innerHTML = '<span class="inline-block animate-[pulse_2s_ease-in-out_infinite]">It\'s your turn</span>';
             } else {
-                const activePlayer = players.find(p => p.id === activePlayerId);
+                const activePlayer = this.players.find(p => p.id === this.activePlayerId);
                 turnText.textContent = `It's ${activePlayer?.name || 'Unknown Player'}'s turn`;
             }
         }
 
-        // Game event handlers
-        const channel = window.Echo.channel('test-channel');
-        
-        channel.listen('BroadcastEvent', (data) => {
-            const { event, gameState } = data;
-            
-            if (event === 'App\\Events\\Gameplay\\RolledDice') {
-                if (gameState?.last_roll !== undefined) {
-                    rollAnimation('die-container', gameState.last_roll);
-                }
+        handleEvent(event, gameState) {
+            if (event === 'App\\Events\\Gameplay\\RolledDice' && gameState?.last_roll !== undefined) {
+                this.rollAnimation('die-container', gameState.last_roll);
             }
             
-            if (event === 'App\\Events\\Gameplay\\EndedTurn') {
-                if (gameState?.active_player_id !== undefined) {
-                    activePlayerId = String(gameState.active_player_id);
-                    updateUI();
-                }
+            if (event === 'App\\Events\\Gameplay\\EndedTurn' && gameState?.active_player_id !== undefined) {
+                this.activePlayerId = String(gameState.active_player_id);
+                this.updateUI();
             }
-        });
+        }
 
-        // Initialize UI
-        updateUI();
-
-        // Copy button
-        document.getElementById('copy-button')?.addEventListener('click', async () => {
+        async rollDice() {
+            this.rollAnimation('die-container', null);
+            
             try {
-                await navigator.clipboard.writeText('{{ url('/games/' . $game->id) }}');
-                document.getElementById('copy-text').textContent = 'Copied!';
-                document.getElementById('copy-icon').classList.add('hidden');
-                document.getElementById('check-icon').classList.remove('hidden');
-                
-                setTimeout(() => {
-                    document.getElementById('copy-text').textContent = 'Copy';
-                    document.getElementById('copy-icon').classList.remove('hidden');
-                    document.getElementById('check-icon').classList.add('hidden');
-                }, 2000);
-            } catch (err) {
-                console.error('Copy failed:', err);
+                await axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
+                    _token: '{{ csrf_token() }}'
+                });
+            } catch (error) {
+                console.error('Error rolling dice:', error);
             }
-        });
+        }
+
+        setupCopyButton() {
+            const copyButton = document.getElementById('copy-button');
+            if (!copyButton) return;
+
+            copyButton.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText('{{ url('/games/' . $game->id) }}');
+                    this.showCopySuccess();
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                }
+            });
+        }
+
+        showCopySuccess() {
+            const copyText = document.getElementById('copy-text');
+            const copyIcon = document.getElementById('copy-icon');
+            const checkIcon = document.getElementById('check-icon');
+            
+            copyText.textContent = 'Copied!';
+            copyIcon.classList.add('hidden');
+            checkIcon.classList.remove('hidden');
+            
+            setTimeout(() => {
+                copyText.textContent = 'Copy';
+                copyIcon.classList.remove('hidden');
+                checkIcon.classList.add('hidden');
+            }, 2000);
+        }
+
+        init() {
+            const currentRoll = {{ $game->last_roll ?? 'null' }};
+            if (currentRoll) {
+                document.getElementById('die-container').innerHTML = this.createDie(currentRoll);
+            }
+
+            this.channel.listen('BroadcastEvent', (data) => {
+                this.handleEvent(data.event, data.gameState);
+            });
+
+            this.updateUI();
+            this.setupCopyButton();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        window.panel = new Panel();
+        window.panel.init();
     });
 
     function rollDice() {
-        // Start animation immediately
-        rollAnimation('die-container', null);
-        
-        axios.post('{{ route('players.rollDice', ['game_id' => $game->id, 'player_id' => $auth_player->id]) }}', {
-            _token: '{{ csrf_token() }}'
-        })
-        .then(function (response) {
-            // Animation will be handled by websocket event
-        })
-        .catch(function (error) {
-            console.error('Error rolling dice:', error);
-        });
+        window.panel?.rollDice();
     }
 </script>

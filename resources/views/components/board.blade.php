@@ -94,152 +94,124 @@
 </div>
 
 <script>
-    const squarePositions = @json($squarePositions);
+    class Board {
+        constructor() {
+            this.squarePositions = @json($squarePositions);
+            this.movementInProgress = false;
+            this.channel = window.Echo.channel('test-channel');
+        }
 
-    const movePlayer = (playerId, fromSquare, toSquare) => {
-        return new Promise((resolve) => {
+        getToken(playerId) {
             const token = document.querySelector(`[data-player-id="${playerId}"]`);
             if (!token) {
                 console.warn(`Token for player ${playerId} not found`);
-                return resolve();
             }
-            
+            return token;
+        }
+
+        updateTokenPosition(token, x, y, duration = '0.3s') {
+            token.querySelectorAll('circle').forEach(circle => {
+                circle.style.transition = `cx ${duration} ease-in-out, cy ${duration} ease-in-out`;
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+            });
+        }
+
+        async movePlayer(playerId, fromSquare, toSquare) {
+            const token = this.getToken(playerId);
+            if (!token) return;
+
             const from = parseInt(fromSquare) || 1;
             const to = parseInt(toSquare);
             
-            if (from === to) return resolve();
+            if (from === to) return;
             
-            // Generate squares to animate through
+            const squares = this.generateMovementSquares(from, to);
+            await this.animateThroughSquares(token, squares);
+        }
+
+        generateMovementSquares(from, to) {
             const squares = [];
             const step = from < to ? 1 : -1;
             for (let i = from + step; i !== to + step; i += step) {
                 squares.push(i);
             }
-            
-            // Animate through each square
-            let index = 0;
-            const animateNext = () => {
-                if (index >= squares.length) return resolve();
-                
-                const square = squares[index++];
-                const [x, y] = squarePositions[square] || [0, 0];
-                
-                // Update all circles in the token
-                token.querySelectorAll('circle').forEach(circle => {
-                    circle.style.transition = 'cx 0.3s ease-in-out, cy 0.3s ease-in-out';
-                    circle.setAttribute('cx', x);
-                    circle.setAttribute('cy', y);
-                });
-                
-                setTimeout(animateNext, 300);
-            };
-            
-            animateNext();
-        });
-    };
+            return squares;
+        }
 
-    const climbLadder = (playerId, fromSquare, toSquare) => {
-        return new Promise((resolve) => {
-            const token = document.querySelector(`[data-player-id="${playerId}"]`);
-            if (!token) {
-                console.warn(`Token for player ${playerId} not found`);
-                return resolve();
+        async animateThroughSquares(token, squares) {
+            for (const square of squares) {
+                const [x, y] = this.squarePositions[square] || [0, 0];
+                this.updateTokenPosition(token, x, y);
+                await this.delay(300);
             }
-            
-            const [x, y] = squarePositions[toSquare] || [0, 0];
-            
-            console.log(`Player ${playerId} climbing ladder from square ${fromSquare} to square ${toSquare}`);
-            
-            // Direct diagonal animation (no stepping)
-            token.querySelectorAll('circle').forEach(circle => {
-                circle.style.transition = 'cx 0.8s ease-in-out, cy 0.8s ease-in-out';
-                circle.setAttribute('cx', x);
-                circle.setAttribute('cy', y);
-            });
-            
-            setTimeout(resolve, 800);
-        });
-    };
+        }
 
-    const fallDownChute = (playerId, fromSquare, toSquare) => {
-        return new Promise((resolve) => {
-            const token = document.querySelector(`[data-player-id="${playerId}"]`);
-            if (!token) {
-                console.warn(`Token for player ${playerId} not found`);
-                return resolve();
-            }
-            
-            const [x, y] = squarePositions[toSquare] || [0, 0];
-            
-            console.log(`Player ${playerId} falling down chute from square ${fromSquare} to square ${toSquare}`);
-            
-            // Direct diagonal animation (no stepping)
-            token.querySelectorAll('circle').forEach(circle => {
-                circle.style.transition = 'cx 0.8s ease-in-out, cy 0.8s ease-in-out';
-                circle.setAttribute('cx', x);
-                circle.setAttribute('cy', y);
-            });
-            
-            setTimeout(resolve, 800);
-        });
-    };
+        async climbLadder(playerId, fromSquare, toSquare) {
+            const token = this.getToken(playerId);
+            if (!token) return;
 
-    // Board-specific event handling
-    document.addEventListener('DOMContentLoaded', () => {
-        let movementInProgress = false;
-        
-        const channel = window.Echo.channel('test-channel');
-        
-        channel.listen('BroadcastEvent', (data) => {
-            const { event, playerState } = data;
-            
+            const [x, y] = this.squarePositions[toSquare] || [0, 0];
+            this.updateTokenPosition(token, x, y, '0.8s');
+            await this.delay(800);
+        }
+
+        async fallDownChute(playerId, fromSquare, toSquare) {
+            const token = this.getToken(playerId);
+            if (!token) return;
+
+            const [x, y] = this.squarePositions[toSquare] || [0, 0];
+            this.updateTokenPosition(token, x, y, '0.8s');
+            await this.delay(800);
+        }
+
+        async waitForMovement() {
+            return new Promise((resolve) => {
+                const checkMovement = () => {
+                    if (!this.movementInProgress) {
+                        resolve();
+                    } else {
+                        setTimeout(checkMovement, 50);
+                    }
+                };
+                checkMovement();
+            });
+        }
+
+        delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        handleEvent(event, playerState) {
             if (event === 'App\\Events\\Gameplay\\PlayerMoved') {
-                movementInProgress = true;
-                movePlayer(playerState.id, playerState.previous_position, playerState.position)
+                this.movementInProgress = true;
+                this.movePlayer(playerState.id, playerState.previous_position, playerState.position)
                     .then(() => {
-                        movementInProgress = false;
+                        this.movementInProgress = false;
                     });
             }
             
             if (event === 'App\\Events\\Gameplay\\PlayerClimbedLadder') {
-                // Wait for movement to complete before starting ladder climb
-                const waitForMovement = () => {
-                    return new Promise((resolve) => {
-                        const checkMovement = () => {
-                            if (!movementInProgress) {
-                                resolve();
-                            } else {
-                                setTimeout(checkMovement, 50);
-                            }
-                        };
-                        checkMovement();
-                    });
-                };
-                
-                waitForMovement().then(() => {
-                    climbLadder(playerState.id, playerState.previous_position, playerState.position);
+                this.waitForMovement().then(() => {
+                    this.climbLadder(playerState.id, playerState.previous_position, playerState.position);
                 });
             }
             
             if (event === 'App\\Events\\Gameplay\\PlayerFellDownChute') {
-                // Wait for movement to complete before starting chute fall
-                const waitForMovement = () => {
-                    return new Promise((resolve) => {
-                        const checkMovement = () => {
-                            if (!movementInProgress) {
-                                resolve();
-                            } else {
-                                setTimeout(checkMovement, 50);
-                            }
-                        };
-                        checkMovement();
-                    });
-                };
-                
-                waitForMovement().then(() => {
-                    fallDownChute(playerState.id, playerState.previous_position, playerState.position);
+                this.waitForMovement().then(() => {
+                    this.fallDownChute(playerState.id, playerState.previous_position, playerState.position);
                 });
             }
-        });
+        }
+
+        init() {
+            this.channel.listen('BroadcastEvent', (data) => {
+                this.handleEvent(data.event, data.playerState);
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new Board().init();
     });
 </script>
