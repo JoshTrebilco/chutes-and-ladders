@@ -25,9 +25,12 @@ class BroadcastEvent implements ShouldBroadcastNow
         $this->playerState = null;
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
-        return new Channel('test-channel');
+        return [
+            new Channel('debug-channel'),
+            new Channel('game.' . $this->gameState->id),
+        ];
     }
 
     public function broadcastWith()

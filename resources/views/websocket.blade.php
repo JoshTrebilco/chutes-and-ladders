@@ -281,7 +281,6 @@
             }
 
             function log(message) {
-                console.log(message);
                 eventCounter++;
                 
                 const msg = document.createElement('div');
@@ -544,7 +543,7 @@
                 log('⚠️ Connection error: ' + JSON.stringify(error));
             });
 
-            const channelName = "test-channel";
+            const channelName = "debug-channel";
 
             // Subscribe to a test channel
             const channel = window.Echo.channel(channelName);

@@ -1,4 +1,4 @@
-@props(['game', 'auth_player_id'])
+@props(['game', 'auth_player_id', 'channel'])
 <div class="space-y-6">
     {{-- @if($game->hasPlayer($auth_player_id) && ! $game->activePlayer())
         <div class="rounded-md bg-green-50 p-4 mb-5">
@@ -173,7 +173,7 @@
             this.authPlayerId = '{{ $auth_player_id ?? 'null' }}';
             this.activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
             this.dots = this.createDotsMap();
-            this.channel = window.Echo.channel('test-channel');
+            this.channel = window.Echo.channel(@json($channel));
         }
 
         createDotsMap() {
@@ -214,10 +214,6 @@
         updateUI() {
             const dieContainer = document.getElementById('die-container');
             const turnText = document.getElementById('turn-text');
-
-            console.log(this.authPlayerId, this.activePlayerId);
-            console.log(typeof this.authPlayerId);
-            console.log(typeof this.activePlayerId);
 
             const isMyTurn = this.authPlayerId && this.activePlayerId === this.authPlayerId;
 

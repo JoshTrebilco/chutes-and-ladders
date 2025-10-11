@@ -1,3 +1,4 @@
+@props(['board', 'game', 'squarePositions', 'channel'])
 <div class="relative w-[600px] h-[600px]">
     <div class="grid grid-cols-10 gap-1 w-full h-full bg-slate-900/50 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-slate-800/50">
         @foreach ($board->numbers as $number)
@@ -98,7 +99,7 @@
         constructor() {
             this.squarePositions = @json($squarePositions);
             this.movementInProgress = false;
-            this.channel = window.Echo.channel('test-channel');
+            this.channel = window.Echo.channel(@json($channel));
         }
 
         getToken(playerId) {

@@ -20,7 +20,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const dieContainer = document.getElementById('die-container');
             const status = document.getElementById('status');
-            const channel = window.Echo.channel('test-channel');
+            const channel = window.Echo.channel('debug-channel');
             
             const dots = {
                 1: '<span class="col-start-2 col-span-1 row-start-2 row-span-1 w-4 h-4 bg-blue-400 rounded-full shadow-lg shadow-blue-500/50"></span>',

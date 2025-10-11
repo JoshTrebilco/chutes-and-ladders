@@ -1,3 +1,7 @@
+@php
+    $channel = 'game.' . $game->id;
+@endphp
+
 <x-layout>
     <!-- Header with Back Link -->
     <div class="mb-6">
@@ -12,8 +16,8 @@
 
     <!-- Game Board -->
     <div class="mt-2 lg:mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
-        <x-board :board="$board" :game="$game" :square-positions="$squarePositions" />
-        <x-panel :game="$game" :auth_player_id="$auth_player_id" />
+        <x-board :board="$board" :game="$game" :square-positions="$squarePositions" :channel="$channel" />
+        <x-panel :game="$game" :auth_player_id="$auth_player_id" :channel="$channel" />
         
         <!-- Winner Modal (controlled by JavaScript) -->
         <div id="winner-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-50">
@@ -40,7 +44,7 @@
             this.players = {!! json_encode($game->players()->map(fn($p) => ['id' => (string)$p->id, 'name' => $p->name, 'color' => $p->color])) !!};
             this.authPlayerId = '{{ $auth_player_id ?? 'null' }}';
             this.activePlayerId = '{{ $game->activePlayer()?->id ?? 'null' }}';
-            this.channel = window.Echo.channel('test-channel');
+            this.channel = window.Echo.channel(@json($channel));
         }
 
         handleEvent(event, gameState) {
