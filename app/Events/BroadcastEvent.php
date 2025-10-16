@@ -40,7 +40,7 @@ class BroadcastEvent implements ShouldBroadcastNow
             'event' => $this->event,
             'gameState' => $this->gameState,
             'playerState' => $this->playerState,
-            'url' => config('app.url'),
+            'gameChannel' => Str::after(config('app.url'), 'https://').'.'.'game.'.$this->gameState->id,
         ];
 
         // Convert large integers to strings to prevent JavaScript precision loss
