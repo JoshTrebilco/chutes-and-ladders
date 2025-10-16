@@ -3,10 +3,11 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class BroadcastEvent implements ShouldBroadcastNow
 {
@@ -29,7 +30,7 @@ class BroadcastEvent implements ShouldBroadcastNow
     {
         return [
             new Channel('debug-channel'),
-            new Channel('game.' . $this->gameState->id),
+            new Channel(Str::after(config('app.url'), 'https://').'.'.'game.'.$this->gameState->id),
         ];
     }
 
@@ -39,6 +40,7 @@ class BroadcastEvent implements ShouldBroadcastNow
             'event' => $this->event,
             'gameState' => $this->gameState,
             'playerState' => $this->playerState,
+            'url' => config('app.url'),
         ];
 
         // Convert large integers to strings to prevent JavaScript precision loss
